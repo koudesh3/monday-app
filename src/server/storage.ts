@@ -1,9 +1,18 @@
+import { Storage } from '@mondaycom/apps-sdk';
 import { Product } from './schemas';
 
-export async function getFragrances(_token: string): Promise<Product[]> {
-  throw new Error('not implemented');
+function getStorage(token: string): Storage {
+  return new Storage(token);
 }
 
-export async function saveFragrances(_fragrances: Product[], _token: string): Promise<void> {
-  throw new Error('not implemented');
+export async function getFragrances(token: string): Promise<Product[]> {
+  const storage = getStorage(token);
+  const { value } = await storage.get('fragrances');
+  if (!value) return [];
+  return JSON.parse(value as string);
+}
+
+export async function saveFragrances(fragrances: Product[], token: string): Promise<void> {
+  const storage = getStorage(token);
+  await storage.set('fragrances', JSON.stringify(fragrances));
 }
