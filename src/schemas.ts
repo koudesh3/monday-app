@@ -1,0 +1,39 @@
+import { z } from 'zod';
+
+export const ProductSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  category: z.string(),
+  image_url: z.string(),
+  recipe: z.string(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+
+export const CreateProductSchema = ProductSchema.omit({
+  id: true,
+  created_at: true,
+  updated_at: true,
+});
+
+export const BoxSchema = z.object({
+  inscription: z.string(),
+  fragrance_ids: z
+    .array(z.string())
+    .length(3)
+    .refine((ids) => new Set(ids).size === 3, {
+      message: 'All 3 fragrance ids must be unique within the box',
+    }),
+});
+
+export const CreateOrderSchema = z.object({
+  first_name: z.string(),
+  last_name: z.string(),
+  boxes: z.array(BoxSchema).min(1),
+});
+
+export type Product = z.infer<typeof ProductSchema>;
+export type CreateProduct = z.infer<typeof CreateProductSchema>;
+export type Box = z.infer<typeof BoxSchema>;
+export type CreateOrder = z.infer<typeof CreateOrderSchema>;
