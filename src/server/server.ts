@@ -11,11 +11,11 @@ app.get('/health', (c) => {
   return c.json({ ok: true });
 });
 
-app.use('/dist/*', serveStatic({ root: './' }));
+app.use('/assets/*', serveStatic({ root: 'dist/client', rewriteRequestPath: (path) => path.replace(/^\/assets/, '') }));
 
 app.get('*', (c) => {
   return c.html(
-    `<!DOCTYPE html><html><head><title>Candle Gift Box</title></head><body><div id="root"></div><script src="/dist/bundle.js"></script></body></html>`
+    `<!DOCTYPE html><html><head><title>Candle Gift Box</title></head><body><div id="root"></div><script src="/assets/bundle.js"></script></body></html>`
   );
 });
 

@@ -2,17 +2,17 @@ import * as esbuild from 'esbuild';
 import { writeFileSync, mkdirSync } from 'fs';
 
 await esbuild.build({
-  entryPoints: ['client/index.tsx'],
+  entryPoints: ['src/client/index.tsx'],
   bundle: true,
-  outfile: 'dist/bundle.js',
+  outfile: 'dist/client/bundle.js',
   platform: 'browser',
   jsx: 'automatic',
 });
 
-mkdirSync('dist', { recursive: true });
+mkdirSync('dist/client', { recursive: true });
 
 writeFileSync(
-  'dist/index.html',
+  'dist/client/index.html',
   `<!DOCTYPE html>
 <html lang="en">
 <head>

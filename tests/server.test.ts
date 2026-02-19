@@ -15,7 +15,7 @@ vi.mock('@mondaycom/apps-sdk', () => ({
   },
 }));
 
-import { app } from '../src/server';
+import { app } from '../src/server/server';
 
 describe('Server', () => {
   it('GET /health returns 200 with { ok: true }', async () => {

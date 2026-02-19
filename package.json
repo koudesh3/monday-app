@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "build": "tsc && node build.mjs",
-    "start": "node dist-server/server.js",
-    "dev": "npx tsx watch src/server.ts",
+    "start": "node dist/server/server.js",
+    "dev": "npx tsx watch src/server/server.ts",
     "test": "vitest run"
   },
   "dependencies": {
