@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { Logger } from '@mondaycom/apps-sdk';
+import fragrances from './routes/fragrances';
 
 const logger = new Logger('candle-app');
 
@@ -10,6 +11,8 @@ const app = new Hono();
 app.get('/health', (c) => {
   return c.json({ ok: true });
 });
+
+app.route('/api/fragrances', fragrances);
 
 app.use('/assets/*', serveStatic({ root: 'dist/client', rewriteRequestPath: (path) => path.replace(/^\/assets/, '') }));
 
