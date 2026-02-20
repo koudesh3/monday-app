@@ -76,9 +76,10 @@ fragrances.put('/:id', async (c) => {
             return c.json({ error: 'Not found' }, 404);
         }
 
-        const updated = {
-            ...items[index],
+        const updated: Fragrance = {
+            id: items[index].id,
             ...result.data,
+            created_at: items[index].created_at,
             updated_at: new Date().toISOString(),
         };
         items[index] = updated;
