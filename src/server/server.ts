@@ -2,6 +2,8 @@ import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { Logger } from '@mondaycom/apps-sdk';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import fragrances from './routes/fragrances';
 import orders from './routes/orders';
 
@@ -18,10 +20,10 @@ app.route('/api/orders', orders);
 
 app.use('/assets/*', serveStatic({ root: 'dist/client', rewriteRequestPath: (path) => path.replace(/^\/assets/, '') }));
 
+const indexHtml = readFileSync(join(process.cwd(), 'dist/client/index.html'), 'utf-8');
+
 app.get('*', (c) => {
-  return c.html(
-    `<!DOCTYPE html><html><head><title>Candle Gift Box</title></head><body><div id="root"></div><script src="/assets/bundle.js"></script></body></html>`
-  );
+  return c.html(indexHtml);
 });
 
 const port = Number(process.env.PORT ?? 8080);
