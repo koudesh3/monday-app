@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import crypto from 'crypto';
 import { authMiddleware, SessionUser } from '../auth';
-import { CreateProductSchema, Product } from '../schemas';
+import { CreateFragranceSchema, Fragrance } from '../schemas';
 import { getFragrances, saveFragrances } from '../storage';
 
 type Env = { Variables: { user: SessionUser } };
@@ -19,13 +19,13 @@ fragrances.get('/', async (c) => {
 fragrances.post('/', async (c) => {
   const user = c.get('user');
   const body = await c.req.json();
-  const result = CreateProductSchema.safeParse(body);
+  const result = CreateFragranceSchema.safeParse(body);
   if (!result.success) {
     return c.json({ error: result.error.issues }, 422);
   }
 
   const now = new Date().toISOString();
-  const newProduct: Product = {
+  const newFragrance: Fragrance = {
     id: crypto.randomUUID(),
     ...result.data,
     created_at: now,
@@ -33,17 +33,17 @@ fragrances.post('/', async (c) => {
   };
 
   const items = await getFragrances(String(user.dat.account_id));
-  items.push(newProduct);
+  items.push(newFragrance);
   await saveFragrances(items, String(user.dat.account_id));
 
-  return c.json(newProduct, 201);
+  return c.json(newFragrance, 201);
 });
 
 fragrances.put('/:id', async (c) => {
   const user = c.get('user');
   const id = c.req.param('id');
   const body = await c.req.json();
-  const result = CreateProductSchema.safeParse(body);
+  const result = CreateFragranceSchema.safeParse(body);
   if (!result.success) {
     return c.json({ error: result.error.issues }, 422);
   }

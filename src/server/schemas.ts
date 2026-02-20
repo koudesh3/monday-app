@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const ProductSchema = z.object({
+export const FragranceSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
@@ -11,7 +11,7 @@ export const ProductSchema = z.object({
   updated_at: z.string(),
 });
 
-export const CreateProductSchema = ProductSchema.omit({
+export const CreateFragranceSchema = FragranceSchema.omit({
   id: true,
   created_at: true,
   updated_at: true,
@@ -33,7 +33,7 @@ export const CreateOrderSchema = z.object({
   boxes: z.array(BoxSchema).min(1),
 });
 
-export type Product = z.infer<typeof ProductSchema>;
-export type CreateProduct = z.infer<typeof CreateProductSchema>;
+export type Fragrance = z.infer<typeof FragranceSchema>;
+export type CreateFragrance = z.infer<typeof CreateFragranceSchema>;
 export type Box = z.infer<typeof BoxSchema>;
 export type CreateOrder = z.infer<typeof CreateOrderSchema>;
