@@ -1,0 +1,16 @@
+:root {
+  --font-family: Figtree, Roboto, sans-serif !important;
+  --title-font-family: Poppins, Roboto, sans-serif !important;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  font-family: Figtree, Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Poppins, Roboto, sans-serif !important;
+}
