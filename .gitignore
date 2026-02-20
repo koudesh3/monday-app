@@ -1,3 +1,8 @@
 node_modules/
 dist/
 *.tsbuildinfo
+.env
+plan.md
+code.tar.gz
+.claude/*
+local-secure-storage.db.json
