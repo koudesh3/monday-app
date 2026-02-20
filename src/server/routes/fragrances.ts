@@ -12,12 +12,14 @@ fragrances.use('*', authMiddleware);
 
 fragrances.get('/', async (c) => {
   const user = c.get('user');
-  const items = await getFragrances(String(user.dat.account_id));
+  const accountId = String(user.dat.account_id);
+  const items = await getFragrances(accountId);
   return c.json(items);
 });
 
 fragrances.post('/', async (c) => {
   const user = c.get('user');
+  const accountId = String(user.dat.account_id);
   const body = await c.req.json();
   const result = CreateFragranceSchema.safeParse(body);
   if (!result.success) {
@@ -32,15 +34,16 @@ fragrances.post('/', async (c) => {
     updated_at: now,
   };
 
-  const items = await getFragrances(String(user.dat.account_id));
+  const items = await getFragrances(accountId);
   items.push(newFragrance);
-  await saveFragrances(items, String(user.dat.account_id));
+  await saveFragrances(items, accountId);
 
   return c.json(newFragrance, 201);
 });
 
 fragrances.put('/:id', async (c) => {
   const user = c.get('user');
+  const accountId = String(user.dat.account_id);
   const id = c.req.param('id');
   const body = await c.req.json();
   const result = CreateFragranceSchema.safeParse(body);
@@ -48,7 +51,7 @@ fragrances.put('/:id', async (c) => {
     return c.json({ error: result.error.issues }, 422);
   }
 
-  const items = await getFragrances(String(user.dat.account_id));
+  const items = await getFragrances(accountId);
   const index = items.findIndex((item) => item.id === id);
   if (index === -1) {
     return c.json({ error: 'Not found' }, 404);
@@ -59,23 +62,23 @@ fragrances.put('/:id', async (c) => {
     ...result.data,
     updated_at: new Date().toISOString(),
   };
-  await saveFragrances(items, String(user.dat.account_id));
+  await saveFragrances(items, accountId);
 
   return c.json(items[index]);
 });
 
 fragrances.delete('/:id', async (c) => {
   const user = c.get('user');
+  const accountId = String(user.dat.account_id);
   const id = c.req.param('id');
 
-  const items = await getFragrances(String(user.dat.account_id));
-  const index = items.findIndex((item) => item.id === id);
-  if (index === -1) {
+  const items = await getFragrances(accountId);
+  const filtered = items.filter((item) => item.id !== id);
+  if (filtered.length === items.length) {
     return c.json({ error: 'Not found' }, 404);
   }
 
-  items.splice(index, 1);
-  await saveFragrances(items, String(user.dat.account_id));
+  await saveFragrances(filtered, accountId);
 
   return c.body(null, 204);
 });
