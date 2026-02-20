@@ -21,6 +21,14 @@ export function useFragrances(monday: MondayClientSdk): UseFragrancesResult {
         const sessionToken = result.data;
 
         if (typeof sessionToken !== 'string') {
+          // In development, fall back to mock data when not running in Monday iframe
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('No valid session token (not in Monday iframe), using mock data');
+            setFragrances(mockFragrances);
+            setError(null);
+            setLoading(false);
+            return;
+          }
           throw new Error('Invalid session token received from monday SDK');
         }
 
