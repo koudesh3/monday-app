@@ -1,86 +1,104 @@
 import { Hono } from 'hono';
 import crypto from 'crypto';
+import { Mutex } from 'async-mutex';
 import { authMiddleware, SessionUser } from '../auth';
 import { CreateFragranceSchema, Fragrance } from '../schemas';
 import { getFragrances, saveFragrances } from '../storage';
 
-type Env = { Variables: { user: SessionUser } };
+type Env = { Variables: { user: SessionUser; accountId: string } };
+
+// note: Concurrent write risk is probably small, but this prevents it as usage scales. I included this assuming a single region deployment.
+const mutexes = new Map<string, Mutex>();
+
+function getMutex(accountId: string): Mutex {
+    if (!mutexes.has(accountId)) mutexes.set(accountId, new Mutex());
+    return mutexes.get(accountId)!;
+}
 
 const fragrances = new Hono<Env>();
 
 fragrances.use('*', authMiddleware);
 
+fragrances.use('*', async (c, next) => {
+    const user = c.get('user');
+    c.set('accountId', String(user.dat.account_id));
+    await next();
+});
+
 fragrances.get('/', async (c) => {
-  const user = c.get('user');
-  const accountId = String(user.dat.account_id);
-  const items = await getFragrances(accountId);
-  return c.json(items);
+    const accountId = c.get('accountId');
+    const items = await getFragrances(accountId);
+    return c.json(items);
 });
 
 fragrances.post('/', async (c) => {
-  const user = c.get('user');
-  const accountId = String(user.dat.account_id);
-  const body = await c.req.json();
-  const result = CreateFragranceSchema.safeParse(body);
-  if (!result.success) {
-    return c.json({ error: result.error.issues }, 422);
-  }
+    const accountId = c.get('accountId');
+    const body = await c.req.json();
+    const result = CreateFragranceSchema.safeParse(body);
+    if (!result.success) {
+        return c.json({ error: result.error.issues }, 422);
+    }
 
-  const now = new Date().toISOString();
-  const newFragrance: Fragrance = {
-    id: crypto.randomUUID(),
-    ...result.data,
-    created_at: now,
-    updated_at: now,
-  };
+    const now = new Date().toISOString();
+    const newFragrance: Fragrance = {
+        id: crypto.randomUUID(),
+        ...result.data,
+        created_at: now,
+        updated_at: now,
+    };
 
-  const items = await getFragrances(accountId);
-  items.push(newFragrance);
-  await saveFragrances(items, accountId);
-
-  return c.json(newFragrance, 201);
+    return getMutex(accountId).runExclusive(async () => {
+        const items = await getFragrances(accountId);
+        items.push(newFragrance);
+        await saveFragrances(items, accountId);
+        return c.json(newFragrance, 201);
+    });
 });
 
 fragrances.put('/:id', async (c) => {
-  const user = c.get('user');
-  const accountId = String(user.dat.account_id);
-  const id = c.req.param('id');
-  const body = await c.req.json();
-  const result = CreateFragranceSchema.safeParse(body);
-  if (!result.success) {
-    return c.json({ error: result.error.issues }, 422);
-  }
+    const accountId = c.get('accountId');
+    const id = c.req.param('id');
+    const body = await c.req.json();
+    const result = CreateFragranceSchema.safeParse(body);
+    if (!result.success) {
+        return c.json({ error: result.error.issues }, 422);
+    }
 
-  const items = await getFragrances(accountId);
-  const index = items.findIndex((item) => item.id === id);
-  if (index === -1) {
-    return c.json({ error: 'Not found' }, 404);
-  }
+    return getMutex(accountId).runExclusive(async () => {
+        const items = await getFragrances(accountId);
+        const index = items.findIndex((item) => item.id === id);
+        if (index === -1) {
+            return c.json({ error: 'Not found' }, 404);
+        }
 
-  items[index] = {
-    ...items[index],
-    ...result.data,
-    updated_at: new Date().toISOString(),
-  };
-  await saveFragrances(items, accountId);
+        const updated = {
+            ...items[index],
+            ...result.data,
+            updated_at: new Date().toISOString(),
+        };
+        items[index] = updated;
+        await saveFragrances(items, accountId);
 
-  return c.json(items[index]);
+        return c.json(updated);
+    });
 });
 
 fragrances.delete('/:id', async (c) => {
-  const user = c.get('user');
-  const accountId = String(user.dat.account_id);
-  const id = c.req.param('id');
+    const accountId = c.get('accountId');
+    const id = c.req.param('id');
 
-  const items = await getFragrances(accountId);
-  const filtered = items.filter((item) => item.id !== id);
-  if (filtered.length === items.length) {
-    return c.json({ error: 'Not found' }, 404);
-  }
+    return getMutex(accountId).runExclusive(async () => {
+        const items = await getFragrances(accountId);
+        const index = items.findIndex((item) => item.id === id);
+        if (index === -1) {
+            return c.json({ error: 'Not found' }, 404);
+        }
 
-  await saveFragrances(filtered, accountId);
+        items.splice(index, 1);
+        await saveFragrances(items, accountId);
 
-  return c.body(null, 204);
+        return c.body(null, 204);
+    });
 });
 
 export default fragrances;
