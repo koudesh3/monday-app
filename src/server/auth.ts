@@ -4,6 +4,14 @@ import { EnvironmentVariablesManager } from '@mondaycom/apps-sdk';
 
 const envManager = new EnvironmentVariablesManager();
 
+export type SessionUser = {
+  dat: {
+    account_id: number;
+    user_id: number;
+    shortLivedToken: string;
+  };
+};
+
 export async function authMiddleware(c: Context, next: Next) {
   const authHeader = c.req.header('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -18,7 +26,7 @@ export async function authMiddleware(c: Context, next: Next) {
   }
 
   try {
-    const payload = jwt.verify(token, signingSecret as string);
+    const payload = jwt.verify(token, signingSecret as string) as SessionUser;
     c.set('user', payload);
     await next();
   } catch {

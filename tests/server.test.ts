@@ -13,6 +13,11 @@ vi.mock('@mondaycom/apps-sdk', () => ({
       return undefined;
     }
   },
+  SecureStorage: class {
+    async get(_key: string) { return null; }
+    async set(_key: string, _value: any) { return true; }
+    async delete(_key: string) { return true; }
+  },
 }));
 
 import { app } from '../src/server/server';

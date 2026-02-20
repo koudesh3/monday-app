@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import jwt from 'jsonwebtoken';
 
 const TEST_SECRET = 'test-secret';
-const TEST_TOKEN = jwt.sign({ shortLivedToken: 'mock-slt' }, TEST_SECRET);
+const TEST_TOKEN = jwt.sign({ dat: { account_id: 12345, user_id: 67890, shortLivedToken: 'mock-slt' } }, TEST_SECRET);
 
 let mockFragrances: any[] = [];
 
@@ -19,14 +19,16 @@ vi.mock('@mondaycom/apps-sdk', () => ({
       return undefined;
     }
   },
-  Storage: class {
-    constructor(_token: string) {}
+  SecureStorage: class {
     async get(_key: string) {
-      return { success: true, value: JSON.stringify(mockFragrances) };
+      return mockFragrances;
     }
-    async set(_key: string, value: string) {
-      mockFragrances = JSON.parse(value);
-      return { success: true };
+    async set(_key: string, value: any) {
+      mockFragrances = value;
+      return true;
+    }
+    async delete(_key: string) {
+      return true;
     }
   },
 }));

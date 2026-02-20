@@ -1,11 +1,11 @@
 import { Hono } from 'hono';
 import { EnvironmentVariablesManager } from '@mondaycom/apps-sdk';
-import { authMiddleware } from '../auth';
+import { authMiddleware, SessionUser } from '../auth';
 import { CreateOrderSchema } from '../schemas';
 import { getFragrances } from '../storage';
 import { createOrderItem, createBoxSubitem } from '../monday-api';
 
-type Env = { Variables: { user: { shortLivedToken: string } } };
+type Env = { Variables: { user: SessionUser } };
 
 const orders = new Hono<Env>();
 
@@ -23,7 +23,7 @@ orders.post('/', async (c) => {
 
   const boardId = Number(envManager.get('MONDAY_BOARD_ID'));
 
-  const fragrances = await getFragrances(user.shortLivedToken);
+  const fragrances = await getFragrances(String(user.dat.account_id));
   const nameById = new Map(fragrances.map((f) => [f.id, f.name]));
 
   for (const box of result.data.boxes) {
@@ -37,7 +37,7 @@ orders.post('/', async (c) => {
   const itemId = await createOrderItem({
     boardId,
     itemName: `${result.data.first_name} ${result.data.last_name}`,
-    token: user.shortLivedToken,
+    token: user.dat.shortLivedToken,
   });
 
   const subitemIds: string[] = [];
@@ -49,7 +49,7 @@ orders.post('/', async (c) => {
       boxNumber: i + 1,
       inscription: box.inscription,
       fragranceNames,
-      token: user.shortLivedToken,
+      token: user.dat.shortLivedToken,
     });
     subitemIds.push(subitemId);
   }
