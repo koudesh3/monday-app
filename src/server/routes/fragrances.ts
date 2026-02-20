@@ -8,11 +8,16 @@ import { getFragrances, saveFragrances } from '../storage';
 type Env = { Variables: { user: SessionUser; accountId: string } };
 
 // note: Concurrent write risk is probably small, but this prevents it as usage scales. I included this assuming a single region deployment.
+// note: This map grows unbounded (one mutex per accountId, never removed). Fine at small scale, but could leak memory with many accounts.
 const mutexes = new Map<string, Mutex>();
 
 function getMutex(accountId: string): Mutex {
-    if (!mutexes.has(accountId)) mutexes.set(accountId, new Mutex());
-    return mutexes.get(accountId)!;
+    let mutex = mutexes.get(accountId);
+    if (!mutex) {
+        mutex = new Mutex();
+        mutexes.set(accountId, mutex);
+    }
+    return mutex;
 }
 
 const fragrances = new Hono<Env>();
