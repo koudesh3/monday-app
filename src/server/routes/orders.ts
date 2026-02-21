@@ -1,19 +1,24 @@
-import { Hono } from 'hono';
 import retry from 'async-retry';
-import { authMiddleware, SessionUser } from '../auth';
+import { Hono } from 'hono';
+import { authMiddleware } from '../auth';
 import { CreateOrderSchema } from '../schemas';
 import { getFragrances } from '../storage';
 import { createItem, createSubitem } from '../monday-api';
-
-type Env = { Variables: { user: SessionUser } };
+import { Env } from '../types';
 
 const orders = new Hono<Env>();
 
 orders.use('*', authMiddleware);
 
+orders.use('*', async (c, next) => {
+    const user = c.get('user');
+    c.set('accountId', String(user.dat.account_id));
+    await next();
+});
+
 orders.post('/', async (c) => {
     const user = c.get('user');
-    const accountId = String(user.dat.account_id);
+    const accountId = c.get('accountId');
     const body = await c.req.json();
     const result = CreateOrderSchema.safeParse(body);
     if (!result.success) {
