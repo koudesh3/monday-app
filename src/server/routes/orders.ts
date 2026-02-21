@@ -12,11 +12,6 @@ const orders = new Hono<Env>();
 orders.use('*', authMiddleware);
 
 orders.post('/', async (c) => {
-    const boardId = Number(process.env.MONDAY_BOARD_ID);
-    if (!boardId || isNaN(boardId)) {
-        return c.json({ error: 'Server misconfigured: missing or invalid board ID' }, 500);
-    }
-
     const user = c.get('user');
     const accountId = String(user.dat.account_id);
     const body = await c.req.json();
@@ -36,31 +31,52 @@ orders.post('/', async (c) => {
         }
     }
 
-    const itemId = await createItem({
-        boardId,
-        itemName: `${result.data.first_name} ${result.data.last_name}`,
-        token: user.dat.shortLivedToken,
-    });
+    // note: boardId comes from monday.get('context') on the client.
+    // The shortLivedToken is scoped to the user's existing permissions, so even a tampered boardId can't escalate access beyond what the user already has.
+    let itemId: string;
+    try {
+        itemId = await retry(
+            async () =>
+                createItem({
+                    boardId: result.data.boardId,
+                    itemName: `${result.data.first_name} ${result.data.last_name}`,
+                    token: user.dat.shortLivedToken,
+                }),
+            { retries: 3 }
+        );
+    } catch (err) {
+        console.error('[orders] item creation failed after retries', { accountId, err });
+        return c.json({ error: 'Failed to create order item after retries' }, 500);
+    }
 
-    // Retry each subitem creation independently.
-    // note: If a request times out post commits, a retry may create a duplicate subitem.
-    const subitemIds = await Promise.all(
-        result.data.boxes.map((box, i) =>
-            retry(
-                async () =>
-                    createSubitem({
-                        parentItemId: itemId,
-                        boxNumber: i + 1,
-                        inscription: box.inscription,
-                        fragranceNames: box.fragrance_ids.map((id) => nameById.get(id)!), // validated above
-                        token: user.dat.shortLivedToken,
-                    }),
-                { retries: 3 }
+    // note: Each subitem creation is retried independently.
+    // 1. If a request times out after committing, a retry may create a duplicate subitem.
+    // 2. If all retries fail, the order item will exist without its line items.
+    // 3. Both cases are logged for observability and can be corrected manually on the board.
+    try {
+        const subitemIds = await Promise.all(
+            result.data.boxes.map((box, i) =>
+                retry(
+                    async () =>
+                        createSubitem({
+                            parentItemId: itemId,
+                            boxNumber: i + 1,
+                            inscription: box.inscription,
+                            fragranceNames: box.fragrance_ids.map((id) => nameById.get(id)!), // validated above
+                            token: user.dat.shortLivedToken,
+                        }),
+                    { retries: 3 }
+                )
             )
-        )
-    );
-
-    return c.json({ itemId, subitemIds }, 201);
+        );
+        return c.json({ itemId, subitemIds }, 201);
+    } catch (err) {
+        console.error('[orders] subitem creation failed after retries', { itemId, accountId, err });
+        return c.json(
+            { error: 'Failed to create subitems after retries', itemId },
+            500
+        );
+    }
 });
 
 export default orders;
