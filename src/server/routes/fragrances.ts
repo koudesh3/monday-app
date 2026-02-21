@@ -8,7 +8,7 @@ import { getFragrances, saveFragrances } from '../storage';
 type Env = { Variables: { user: SessionUser; accountId: string } };
 
 // note: Concurrent write risk is probably small, but this prevents it as usage scales. I included this assuming a single region deployment.
-// note: This map grows unbounded (one mutex per accountId, never removed). Fine at small scale, but could leak memory with many accounts.
+// note: This map grows unbounded (one mutex per accountId, never removed). This is a tiny memory leak, by the time it matters we'd be redesigning the concurrency model anyways :)
 const mutexes = new Map<string, Mutex>();
 
 function getMutex(accountId: string): Mutex {
@@ -89,8 +89,8 @@ fragrances.put('/:id', async (c) => {
     });
 });
 
-// note: Deleting fragrances from the KV store doesn't remove them from the "fragrances" board column
-// This means that when we delete fragrances, they are still "pickable" from a dropdown;
+// note: Deleting fragrances from the KV store doesn't remove them from the "fragrances" dropdown menu on the board.
+// Removing them would mean deprecated/inactive fragrances from previous orders lose state.
 fragrances.delete('/:id', async (c) => {
     const accountId = c.get('accountId');
     const id = c.req.param('id');

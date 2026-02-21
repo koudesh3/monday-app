@@ -24,7 +24,7 @@ app.route('/api/orders', orders);
 // static assets
 app.use('/assets/*', serveStatic({ root: 'dist/client' }));
 
-// note: Cache index.html in memory at startup, since serveStatic doesn't support a SPA fallback on Node.js
+// note: serveStatic doesn't support a SPA fallback on Node.js, so cache index.html in memory at startup.
 const indexHtml = readFileSync(join(process.cwd(), 'dist/client/index.html'), 'utf-8');
 app.get('*', (c) => {
     return c.html(indexHtml);
