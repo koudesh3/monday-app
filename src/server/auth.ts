@@ -1,32 +1,30 @@
-import { Context, Next } from 'hono';
 import jwt from 'jsonwebtoken';
+import { Context, Next } from 'hono';
+import { SessionUserSchema } from './schemas';
+import { Env } from './types';
+import { signingSecret } from './config';
 
-export type SessionUser = {
-  dat: {
-    account_id: number;
-    user_id: number;
-    shortLivedToken: string;
-  };
-};
+export async function authMiddleware(c: Context<Env>, next: Next) {
+    const authHeader = c.req.header('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return c.json({ error: 'Missing or invalid Authorization header' }, 401);
+    }
 
-export async function authMiddleware(c: Context, next: Next) {
-  const authHeader = c.req.header('Authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return c.json({ error: 'Missing or invalid Authorization header' }, 401);
-  }
+    const token = authHeader.slice(7);
 
-  const token = authHeader.slice(7);
-  const signingSecret = process.env.MONDAY_SIGNING_SECRET;
+    try {
+        const decoded = jwt.verify(token, signingSecret);
+        const result = SessionUserSchema.safeParse(decoded);
 
-  if (!signingSecret) {
-    return c.json({ error: 'Server misconfigured: missing signing secret' }, 500);
-  }
+        if (!result.success) {
+            console.error('JWT payload validation failed:', result.error);
+            return c.json({ error: 'Invalid token' }, 401);
+        }
 
-  try {
-    const payload = jwt.verify(token, signingSecret) as SessionUser;
-    c.set('user', payload);
-    await next();
-  } catch {
-    return c.json({ error: 'Invalid token' }, 401);
-  }
+        c.set('user', result.data);
+        await next();
+    } catch (err) {
+        console.error('JWT verification failed:', err);
+        return c.json({ error: 'Invalid token' }, 401);
+    }
 }
