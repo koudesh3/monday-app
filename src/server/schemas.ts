@@ -28,6 +28,7 @@ export const BoxSchema = z.object({
 });
 
 export const CreateOrderSchema = z.object({
+  boardId: z.number().int().positive(),
   first_name: z.string(),
   last_name: z.string(),
   boxes: z.array(BoxSchema).min(1),
