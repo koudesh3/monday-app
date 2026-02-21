@@ -1,11 +1,10 @@
-import { Hono } from 'hono';
 import crypto from 'crypto';
+import { Hono } from 'hono';
 import { Mutex } from 'async-mutex';
-import { authMiddleware, SessionUser } from '../auth';
+import { authMiddleware } from '../auth';
 import { CreateFragranceSchema, Fragrance } from '../schemas';
 import { getFragrances, saveFragrances } from '../storage';
-
-type Env = { Variables: { user: SessionUser; accountId: string } };
+import { Env } from '../types';
 
 // note: Concurrent write risk is probably small, but this prevents it as usage scales. I included this assuming a single region deployment.
 // note: This map grows unbounded (one mutex per accountId, never removed). This is a tiny memory leak, by the time it matters we'd be redesigning the concurrency model anyways :)
