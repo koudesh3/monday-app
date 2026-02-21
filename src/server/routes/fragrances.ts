@@ -89,6 +89,8 @@ fragrances.put('/:id', async (c) => {
     });
 });
 
+// note: Deleting fragrances from the KV store doesn't remove them from the "fragrances" board column
+// This means that when we delete fragrances, they are still "pickable" from a dropdown;
 fragrances.delete('/:id', async (c) => {
     const accountId = c.get('accountId');
     const id = c.req.param('id');
