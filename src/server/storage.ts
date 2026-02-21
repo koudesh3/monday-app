@@ -3,11 +3,12 @@ import { Fragrance } from './schemas';
 
 const storage = new SecureStorage();
 
+// note: accountId is used as the multi-tenant partition key, i.e. fragrances_1234567
 export async function getFragrances(accountId: string): Promise<Fragrance[]> {
-  const value = await storage.get<Fragrance[]>(`fragrances_${accountId}`);
-  return value ?? [];
+    const value = await storage.get<Fragrance[]>(`fragrances_${accountId}`);
+    return value ?? [];
 }
 
 export async function saveFragrances(fragrances: Fragrance[], accountId: string): Promise<void> {
-  await storage.set(`fragrances_${accountId}`, fragrances);
+    await storage.set(`fragrances_${accountId}`, fragrances);
 }
