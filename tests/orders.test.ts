@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import jwt from 'jsonwebtoken';
 
-const TEST_SECRET = 'test-secret';
+const TEST_SECRET = 'local-dev-secret-change-in-production';
 const TEST_TOKEN = jwt.sign({ dat: { account_id: 12345, user_id: 67890, shortLivedToken: 'mock-slt' } }, TEST_SECRET);
 
 let mockFragrances: any[] = [];
@@ -38,8 +38,8 @@ vi.mock('@mondaycom/apps-sdk', () => ({
 }));
 
 vi.mock('../src/server/monday-api', () => ({
-  createOrderItem: (...args: any[]) => mockCreateOrderItem(...args),
-  createBoxSubitem: (...args: any[]) => mockCreateBoxSubitem(...args),
+  createItem: (...args: any[]) => mockCreateOrderItem(...args),
+  createSubitem: (...args: any[]) => mockCreateBoxSubitem(...args),
 }));
 
 import { app } from '../src/server/server';
@@ -80,6 +80,7 @@ describe('Order API', () => {
       method: 'POST',
       headers: { ...authHeader(), 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        boardId: 12345,
         first_name: 'Jane',
         last_name: 'Doe',
         boxes: [{ inscription: 'Happy Birthday', fragrance_ids: ['f1', 'f2', 'f3'] }],
@@ -101,6 +102,7 @@ describe('Order API', () => {
       method: 'POST',
       headers: { ...authHeader(), 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        boardId: 12345,
         first_name: 'Jane',
         last_name: 'Doe',
         boxes: [
@@ -120,7 +122,7 @@ describe('Order API', () => {
     const res = await app.request('/api/orders', {
       method: 'POST',
       headers: { ...authHeader(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ first_name: 'Jane' }),
+      body: JSON.stringify({ boardId: 12345, first_name: 'Jane' }),
     });
     expect(res.status).toBe(422);
   });
@@ -130,6 +132,7 @@ describe('Order API', () => {
       method: 'POST',
       headers: { ...authHeader(), 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        boardId: 12345,
         first_name: 'Jane',
         last_name: 'Doe',
         boxes: [{ inscription: 'Gift', fragrance_ids: ['f1', 'f2', 'UNKNOWN'] }],
@@ -145,6 +148,7 @@ describe('Order API', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        boardId: 12345,
         first_name: 'Jane',
         last_name: 'Doe',
         boxes: [{ inscription: 'Gift', fragrance_ids: ['f1', 'f2', 'f3'] }],
@@ -158,6 +162,7 @@ describe('Order API', () => {
       method: 'POST',
       headers: { ...authHeader(), 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        boardId: 12345,
         first_name: 'Jane',
         last_name: 'Doe',
         boxes: [{ inscription: 'Gift', fragrance_ids: ['f1', 'f2', 'f3'] }],
@@ -179,6 +184,7 @@ describe('Order API', () => {
       method: 'POST',
       headers: { ...authHeader(), 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        boardId: 12345,
         first_name: 'Jane',
         last_name: 'Doe',
         boxes: [
