@@ -1,18 +1,17 @@
-import dotenv from 'dotenv';
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { Logger } from '@mondaycom/apps-sdk';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { port } from './config';
+import { Env } from './types';
 import fragrances from './routes/fragrances';
 import orders from './routes/orders';
 
-dotenv.config();
-
 const logger = new Logger('candle-app');
 
-const app = new Hono();
+const app = new Hono<Env>();
 
 // routes
 app.get('/health', (c) => {
@@ -31,7 +30,6 @@ app.get('*', (c) => {
 });
 
 // start server
-const port = Number(process.env.PORT ?? 8080);
 if (process.env.NODE_ENV !== 'test') {
     serve({ fetch: app.fetch, port }, () => {
         logger.info(`Server running on port ${port}`);
