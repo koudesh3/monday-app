@@ -1,16 +1,23 @@
-:root {
-  --font-family: Figtree, Roboto, sans-serif !important;
-  --title-font-family: Poppins, Roboto, sans-serif !important;
+/**
+ * Global Styles
+ * Static reusable patterns that vibe doesn't cover
+ */
+
+/* Category dot - static shape, dynamic color via inline style */
+.category-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-body {
-  margin: 0;
-  padding: 16px;
-  font-family: Figtree, Roboto, sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: Poppins, Roboto, sans-serif !important;
+/* Multi-line text truncation utility */
+.text-clamp-2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }

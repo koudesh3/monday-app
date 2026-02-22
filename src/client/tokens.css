@@ -1,0 +1,34 @@
+/**
+ * Design Tokens
+ * Category-specific colors for fragrance types
+ */
+
+:root {
+  /* Category colors - background and foreground pairs */
+  --cat-fresh-bg: #e0f4f1;
+  --cat-fresh-fg: #0e7c6b;
+
+  --cat-herbaceous-bg: #e6f2d9;
+  --cat-herbaceous-fg: #4a7c22;
+
+  --cat-woody-bg: #f0e6d3;
+  --cat-woody-fg: #8b6914;
+
+  --cat-smokey-bg: #e8e0d8;
+  --cat-smokey-fg: #6b5344;
+
+  --cat-floral-bg: #f5e0ee;
+  --cat-floral-fg: #a33d80;
+
+  --cat-citrus-bg: #fff5d6;
+  --cat-citrus-fg: #b8860b;
+
+  --cat-fruity-bg: #ffe8e0;
+  --cat-fruity-fg: #c44d2a;
+}
+
+/* Global focus style */
+:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
