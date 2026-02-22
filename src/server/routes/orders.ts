@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { authMiddleware } from '../auth';
 import { CreateOrderSchema } from '../schemas';
 import { getFragrances } from '../storage';
-import { createItem, createSubitem } from '../monday-api';
+import { createItem, createSubitem } from '../mondayClient';
 import { Env } from '../types';
 
 const orders = new Hono<Env>();

@@ -10,7 +10,7 @@ export async function authMiddleware(c: Context<Env>, next: Next) {
         return c.json({ error: 'Missing or invalid Authorization header' }, 401);
     }
 
-    const token = authHeader.slice(7);
+    const token = authHeader.slice(7); // After "Bearer "
 
     try {
         const decoded = jwt.verify(token, signingSecret);
