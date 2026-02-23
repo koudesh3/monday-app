@@ -75,23 +75,25 @@ export const BoxConfig = forwardRef<BoxConfigRef, BoxConfigProps>(
 
     return (
       <VibeBox border rounded="medium" backgroundColor="primaryBackgroundColor" padding="medium">
-        <Flex align="center" gap="medium" marginBottom="medium">
-          <div>
-            <Heading type="h3">Box {boxNumber}</Heading>
-          </div>
-          <Text type="text3" color="secondary">
-            {filledCount} / 3 fragrances
-          </Text>
-          {onRemove && (
-            <IconButton
-              icon={Delete}
-              size="small"
-              kind="tertiary"
-              ariaLabel={`Remove box ${boxNumber}`}
-              onClick={onRemove}
-            />
-          )}
-        </Flex>
+        <VibeBox marginBottom="medium">
+          <Flex align="center" gap="medium">
+            <div>
+              <Heading type="h3">Box {boxNumber}</Heading>
+            </div>
+            <Text type="text3" color="secondary">
+              {filledCount} / 3 fragrances
+            </Text>
+            {onRemove && (
+              <IconButton
+                icon={Delete}
+                size="small"
+                kind="tertiary"
+                ariaLabel={`Remove box ${boxNumber}`}
+                onClick={onRemove}
+              />
+            )}
+          </Flex>
+        </VibeBox>
 
         <VibeBox marginBottom="medium">
           <Flex direction="column" gap="medium">
