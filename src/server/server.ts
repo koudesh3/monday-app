@@ -8,6 +8,7 @@ import { port } from './config';
 import { Env } from './types';
 import fragrances from './routes/fragrances';
 import orders from './routes/orders';
+import webhook from './routes/webhook';
 
 const logger = new Logger('candle-app');
 
@@ -19,6 +20,7 @@ app.get('/health', (c) => {
 });
 app.route('/api/fragrances', fragrances);
 app.route('/api/orders', orders);
+app.route('/webhook', webhook);
 
 // static assets
 app.use('/assets/*', serveStatic({ root: 'dist/client' }));
