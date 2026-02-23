@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import jwt from 'jsonwebtoken';
 
-const TEST_SECRET = 'local-dev-secret-change-in-production';
+// Read the actual secret from env since config.ts is loaded before mocks
+const TEST_SECRET = process.env.MONDAY_CLIENT_SECRET || 'test-secret';
 const TEST_TOKEN = jwt.sign({ dat: { account_id: 12345, user_id: 67890, shortLivedToken: 'mock-slt' } }, TEST_SECRET);
 
 let mockFragrances: any[] = [];
@@ -61,6 +62,17 @@ function makeFragrance(id: string, name: string) {
     };
 }
 
+function validOrderBase() {
+    return {
+        boardId: 12345,
+        first_name: 'Jane',
+        last_name: 'Doe',
+        email: 'jane@example.com',
+        phone: '555-012-3456',
+        shipping_address: '123 Main St, City, State 12345',
+    };
+}
+
 describe('Order API', () => {
     beforeEach(() => {
         mockFragrances = [
@@ -80,9 +92,7 @@ describe('Order API', () => {
             method: 'POST',
             headers: { ...authHeader(), 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                boardId: 12345,
-                first_name: 'Jane',
-                last_name: 'Doe',
+                ...validOrderBase(),
                 boxes: [{ inscription: 'Happy Birthday', fragrance_ids: ['f1', 'f2', 'f3'] }],
             }),
         });
@@ -102,9 +112,7 @@ describe('Order API', () => {
             method: 'POST',
             headers: { ...authHeader(), 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                boardId: 12345,
-                first_name: 'Jane',
-                last_name: 'Doe',
+                ...validOrderBase(),
                 boxes: [
                     { inscription: 'Box A', fragrance_ids: ['f1', 'f2', 'f3'] },
                     { inscription: 'Box B', fragrance_ids: ['f2', 'f3', 'f4'] },
@@ -132,9 +140,7 @@ describe('Order API', () => {
             method: 'POST',
             headers: { ...authHeader(), 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                boardId: 12345,
-                first_name: 'Jane',
-                last_name: 'Doe',
+                ...validOrderBase(),
                 boxes: [{ inscription: 'Gift', fragrance_ids: ['f1', 'f2', 'UNKNOWN'] }],
             }),
         });
@@ -148,9 +154,7 @@ describe('Order API', () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                boardId: 12345,
-                first_name: 'Jane',
-                last_name: 'Doe',
+                ...validOrderBase(),
                 boxes: [{ inscription: 'Gift', fragrance_ids: ['f1', 'f2', 'f3'] }],
             }),
         });
@@ -162,16 +166,16 @@ describe('Order API', () => {
             method: 'POST',
             headers: { ...authHeader(), 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                boardId: 12345,
-                first_name: 'Jane',
-                last_name: 'Doe',
+                ...validOrderBase(),
                 boxes: [{ inscription: 'Gift', fragrance_ids: ['f1', 'f2', 'f3'] }],
             }),
         });
         expect(mockCreateOrderItem).toHaveBeenCalledWith({
             boardId: 12345,
             itemName: 'Jane Doe',
-            token: 'mock-slt',
+            email: 'jane@example.com',
+            phone: '555-012-3456',
+            shippingAddress: '123 Main St, City, State 12345',
         });
     });
 
@@ -184,9 +188,7 @@ describe('Order API', () => {
             method: 'POST',
             headers: { ...authHeader(), 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                boardId: 12345,
-                first_name: 'Jane',
-                last_name: 'Doe',
+                ...validOrderBase(),
                 boxes: [
                     { inscription: 'Box A', fragrance_ids: ['f1', 'f2', 'f3'] },
                     { inscription: 'Box B', fragrance_ids: ['f2', 'f3', 'f4'] },
@@ -199,14 +201,12 @@ describe('Order API', () => {
             boxNumber: 1,
             inscription: 'Box A',
             fragranceNames: ['Lavender', 'Rose', 'Vanilla'],
-            token: 'mock-slt',
         });
         expect(mockCreateBoxSubitem).toHaveBeenCalledWith({
             parentItemId: 'item-100',
             boxNumber: 2,
             inscription: 'Box B',
             fragranceNames: ['Rose', 'Vanilla', 'Sandalwood'],
-            token: 'mock-slt',
         });
     });
 });

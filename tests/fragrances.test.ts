@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import jwt from 'jsonwebtoken';
 
-const TEST_SECRET = 'test-secret';
+// Read the actual secret from env since config.ts is loaded before mocks
+const TEST_SECRET = process.env.MONDAY_CLIENT_SECRET || 'test-secret';
 const TEST_TOKEN = jwt.sign({ dat: { account_id: 12345, user_id: 67890, shortLivedToken: 'mock-slt' } }, TEST_SECRET);
 
 let mockFragrances: any[] = [];
