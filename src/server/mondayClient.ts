@@ -87,3 +87,64 @@ export async function createSubitem(params: {
     return data.create_subitem.id;
 }
 
+export async function getSubitemsWithStatus(params: {
+    parentItemId: string;
+    statusColumnId: string;
+}): Promise<Array<{ id: string; statusLabel: string | null }>> {
+    const client = getClient();
+    const query = gql`
+    query ($itemId: [ID!]!) {
+      items(ids: $itemId) {
+        subitems {
+          id
+          column_values {
+            id
+            text
+          }
+        }
+      }
+    }
+  `;
+    const data = await client.request<{
+        items: Array<{
+            subitems: Array<{
+                id: string;
+                column_values: Array<{ id: string; text: string | null }>;
+            }>;
+        }>;
+    }>(query, {
+        itemId: [params.parentItemId],
+    });
+
+    const subitems = data.items[0]?.subitems || [];
+    return subitems.map((subitem) => {
+        const statusColumn = subitem.column_values.find((col) => col.id === params.statusColumnId);
+        return {
+            id: subitem.id,
+            statusLabel: statusColumn?.text || null,
+        };
+    });
+}
+
+export async function updateItemStatus(params: {
+    boardId: string;
+    itemId: string;
+    statusColumnId: string;
+    statusLabel: string;
+}): Promise<void> {
+    const client = getClient();
+    const mutation = gql`
+    mutation ($boardId: ID!, $itemId: ID!, $columnId: String!, $value: JSON!) {
+      change_column_value(board_id: $boardId, item_id: $itemId, column_id: $columnId, value: $value) {
+        id
+      }
+    }
+  `;
+    await client.request(mutation, {
+        boardId: params.boardId,
+        itemId: params.itemId,
+        columnId: params.statusColumnId,
+        value: JSON.stringify({ label: params.statusLabel }),
+    });
+}
+
