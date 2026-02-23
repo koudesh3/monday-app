@@ -120,6 +120,9 @@ describe('validateOrder', () => {
     const payload: OrderPayload = {
       firstName: 'John',
       lastName: 'Smith',
+      email: 'john@example.com',
+      phone: '555-012-3456',
+      shippingAddress: '123 Main St',
       boxes: [
         {
           fragrances: [mockFragrance, mockFragrance, mockFragrance],
@@ -135,6 +138,9 @@ describe('validateOrder', () => {
     const payload: OrderPayload = {
       firstName: '',
       lastName: 'Smith',
+      email: 'john@example.com',
+      phone: '555-012-3456',
+      shippingAddress: '123 Main St',
       boxes: [
         {
           fragrances: [mockFragrance, mockFragrance, mockFragrance],
@@ -152,6 +158,9 @@ describe('validateOrder', () => {
     const payload: OrderPayload = {
       firstName: 'John',
       lastName: '   ',
+      email: 'john@example.com',
+      phone: '555-012-3456',
+      shippingAddress: '123 Main St',
       boxes: [
         {
           fragrances: [mockFragrance, mockFragrance, mockFragrance],
@@ -169,6 +178,9 @@ describe('validateOrder', () => {
     const payload: OrderPayload = {
       firstName: 'John',
       lastName: 'Smith',
+      email: 'john@example.com',
+      phone: '555-012-3456',
+      shippingAddress: '123 Main St',
       boxes: [],
     };
 
@@ -181,6 +193,9 @@ describe('validateOrder', () => {
     const payload: OrderPayload = {
       firstName: 'John',
       lastName: 'Smith',
+      email: 'john@example.com',
+      phone: '555-012-3456',
+      shippingAddress: '123 Main St',
       boxes: [
         {
           fragrances: [mockFragrance, null, null],
@@ -198,6 +213,9 @@ describe('validateOrder', () => {
     const payload: OrderPayload = {
       firstName: 'John',
       lastName: 'Smith',
+      email: 'john@example.com',
+      phone: '555-012-3456',
+      shippingAddress: '123 Main St',
       boxes: [
         {
           fragrances: [mockFragrance, mockFragrance, mockFragrance],
@@ -215,6 +233,9 @@ describe('validateOrder', () => {
     const payload: OrderPayload = {
       firstName: 'John',
       lastName: 'Smith',
+      email: 'john@example.com',
+      phone: '555-012-3456',
+      shippingAddress: '123 Main St',
       boxes: [
         {
           fragrances: [mockFragrance, mockFragrance, mockFragrance],
@@ -238,6 +259,9 @@ describe('validateOrder', () => {
     const payload: OrderPayload = {
       firstName: 'John',
       lastName: 'Smith',
+      email: 'john@example.com',
+      phone: '555-012-3456',
+      shippingAddress: '123 Main St',
       boxes: [
         {
           fragrances: [mockFragrance, mockFragrance, mockFragrance],
