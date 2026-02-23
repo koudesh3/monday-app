@@ -78,23 +78,17 @@ async function apiFetch<T>(
 /**
  * HTTP method helpers
  */
-// TODO: A second generic to avoid any is acceptable here
-// ex. post: <T, B = unknown>(endpoint: string, body: B) =>
-// apiFetch<T>(endpoint, {
-//     method: 'POST',
-//     body: JSON.stringify(body),
-// }),
 export const client = {
     get: <T>(endpoint: string) =>
         apiFetch<T>(endpoint, { method: 'GET' }),
 
-    post: <T>(endpoint: string, body: any) =>
+    post: <T, B = unknown>(endpoint: string, body: B) =>
         apiFetch<T>(endpoint, {
             method: 'POST',
             body: JSON.stringify(body),
         }),
 
-    put: <T>(endpoint: string, body: any) =>
+    put: <T, B = unknown>(endpoint: string, body: B) =>
         apiFetch<T>(endpoint, {
             method: 'PUT',
             body: JSON.stringify(body),
