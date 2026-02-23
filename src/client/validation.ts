@@ -71,6 +71,16 @@ export const rules = {
     if (value.length > 300) return "Max 300 characters";
     return null;
   },
+
+  imageUrl: (value: string): string | null => {
+    if (!value.trim()) return "Required";
+    try {
+      new URL(value);
+      return null;
+    } catch {
+      return "Invalid URL";
+    }
+  },
 };
 
 /**
@@ -119,4 +129,26 @@ export function validateOrder(payload: OrderPayload): ValidationErrors | null {
   }
 
   return Object.keys(errors).length > 0 ? errors : null;
+}
+
+/**
+ * Form-level validation for fragrance add/edit form.
+ * Validates all required fields.
+ *
+ * Returns an object with field names as keys and error messages (or null) as values.
+ */
+export function validateFragranceForm(form: {
+  name: string;
+  description: string;
+  image_url: string;
+  category: string;
+  recipe: string;
+}): Record<string, string | null> {
+  return {
+    name: rules.fragName(form.name),
+    description: rules.fragDesc(form.description),
+    image_url: rules.imageUrl(form.image_url),
+    category: !form.category.trim() ? "Required" : null,
+    recipe: !form.recipe.trim() ? "Required" : null,
+  };
 }
