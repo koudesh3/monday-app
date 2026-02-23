@@ -3,12 +3,13 @@
  * Add/edit form for fragrances in the admin panel
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TextField, Flex, Box } from '@vibe/core';
 import { Dropdown } from '@vibe/core/next';
 import { Button } from '@vibe/button';
+import { Text } from '@vibe/typography';
 import { CATEGORIES } from '../../constants';
-import { rules } from '../../validation';
+import { rules, validateFragranceForm } from '../../validation';
 import type { FragranceForm as FragranceFormData } from '../../api/fragrances';
 
 export interface FragranceFormProps {
@@ -28,64 +29,41 @@ export function FragranceForm({
   onCancel,
   mode,
 }: FragranceFormProps) {
-  const [name, setName] = useState(initialValues?.name ?? '');
-  const [description, setDescription] = useState(initialValues?.description ?? '');
-  const [category, setCategory] = useState(initialValues?.category ?? '');
-  const [imageUrl, setImageUrl] = useState(initialValues?.image_url ?? '');
-  const [recipe, setRecipe] = useState(initialValues?.recipe ?? '');
+  const [form, setForm] = useState<FragranceFormData>({
+    name: initialValues?.name ?? '',
+    description: initialValues?.description ?? '',
+    category: initialValues?.category ?? '',
+    image_url: initialValues?.image_url ?? '',
+    recipe: initialValues?.recipe ?? '',
+  });
 
-  const [nameError, setNameError] = useState<string | null>(null);
-  const [descError, setDescError] = useState<string | null>(null);
-  const [imageUrlError, setImageUrlError] = useState<string | null>(null);
-
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [saving, setSaving] = useState(false);
 
-  // Reset form when initialValues change
-  useEffect(() => {
-    setName(initialValues?.name ?? '');
-    setDescription(initialValues?.description ?? '');
-    setCategory(initialValues?.category ?? '');
-    setImageUrl(initialValues?.image_url ?? '');
-    setRecipe(initialValues?.recipe ?? '');
-    setNameError(null);
-    setDescError(null);
-    setImageUrlError(null);
-  }, [initialValues]);
+  const setField = (field: keyof FragranceFormData, value: string) =>
+    setForm((prev) => ({ ...prev, [field]: value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate all fields
-    const nErr = rules.fragName(name);
-    const dErr = rules.fragDesc(description);
-    let iErr: string | null = null;
-    if (!imageUrl.trim()) {
-      iErr = 'Required';
-    } else {
-      try {
-        new URL(imageUrl);
-      } catch {
-        iErr = 'Invalid URL';
-      }
-    }
+    const errs = validateFragranceForm(form);
+    setErrors(errs);
 
-    setNameError(nErr);
-    setDescError(dErr);
-    setImageUrlError(iErr);
-
-    if (nErr || dErr || iErr || !category.trim() || !recipe.trim()) {
+    if (Object.values(errs).some(Boolean)) {
       return;
     }
 
     try {
       setSaving(true);
       await onSave({
-        name: name.trim(),
-        description: description.trim(),
-        category,
-        image_url: imageUrl.trim(),
-        recipe: recipe.trim(),
+        name: form.name.trim(),
+        description: form.description.trim(),
+        category: form.category,
+        image_url: form.image_url.trim(),
+        recipe: form.recipe.trim(),
       });
+    } catch (err) {
+      console.error('Save failed:', err);
     } finally {
       setSaving(false);
     }
@@ -98,65 +76,64 @@ export function FragranceForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      <Box border rounded="medium" backgroundColor="primaryBackgroundColor" style={{ padding: '16px' }}>
+      <Box border rounded="medium" backgroundColor="primaryBackgroundColor" padding="medium">
         <Flex direction="column" gap="medium">
         <TextField
           title="Name"
           placeholder="Enter fragrance name"
-          value={name}
-          onChange={setName}
-          onBlur={() => setNameError(rules.fragName(name))}
-          validation={nameError ? { status: 'error', text: nameError } : undefined}
+          value={form.name}
+          onChange={(value) => setField('name', value)}
+          onBlur={() => setErrors((prev) => ({ ...prev, name: rules.fragName(form.name) }))}
+          validation={errors.name ? { status: 'error', text: errors.name } : undefined}
           required
         />
 
         <TextField
           title="Description"
           placeholder="Enter description"
-          value={description}
-          onChange={setDescription}
-          onBlur={() => setDescError(rules.fragDesc(description))}
-          validation={descError ? { status: 'error', text: descError } : undefined}
+          value={form.description}
+          onChange={(value) => setField('description', value)}
+          onBlur={() => setErrors((prev) => ({ ...prev, description: rules.fragDesc(form.description) }))}
+          validation={errors.description ? { status: 'error', text: errors.description } : undefined}
         />
 
-        <Dropdown
-          placeholder="Select category"
-          options={categoryOptions}
-          value={category ? { value: category, label: category } : undefined}
-          onChange={(option) => setCategory(option?.value ?? '')}
-          required
-        />
+        <Flex direction="column" gap="xs">
+          <Dropdown
+            placeholder="Select category"
+            options={categoryOptions}
+            value={form.category ? { value: form.category, label: form.category } : undefined}
+            onChange={(option) => setField('category', option?.value ?? '')}
+            onBlur={() => setErrors((prev) => ({ ...prev, category: !form.category.trim() ? 'Required' : null }))}
+            required
+          />
+          {errors.category && (
+            <Text type="text2" color="negative">
+              {errors.category}
+            </Text>
+          )}
+        </Flex>
 
         <TextField
           title="Image URL"
           placeholder="https://example.com/image.jpg"
-          value={imageUrl}
-          onChange={setImageUrl}
-          onBlur={() => {
-            if (!imageUrl.trim()) {
-              setImageUrlError('Required');
-            } else {
-              try {
-                new URL(imageUrl);
-                setImageUrlError(null);
-              } catch {
-                setImageUrlError('Invalid URL');
-              }
-            }
-          }}
-          validation={imageUrlError ? { status: 'error', text: imageUrlError } : undefined}
+          value={form.image_url}
+          onChange={(value) => setField('image_url', value)}
+          onBlur={() => setErrors((prev) => ({ ...prev, image_url: rules.imageUrl(form.image_url) }))}
+          validation={errors.image_url ? { status: 'error', text: errors.image_url } : undefined}
           required
         />
 
         <TextField
           title="Recipe"
           placeholder="Enter recipe or formula"
-          value={recipe}
-          onChange={setRecipe}
+          value={form.recipe}
+          onChange={(value) => setField('recipe', value)}
+          onBlur={() => setErrors((prev) => ({ ...prev, recipe: !form.recipe.trim() ? 'Required' : null }))}
+          validation={errors.recipe ? { status: 'error', text: errors.recipe } : undefined}
           required
         />
 
-        <Flex gap="small" justify="end" style={{ marginTop: '8px' }}>
+        <Flex gap="small" justify="end">
           <Button type="button" kind="tertiary" onClick={onCancel}>
             Cancel
           </Button>
