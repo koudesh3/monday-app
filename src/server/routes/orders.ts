@@ -36,8 +36,6 @@ orders.post('/', async (c) => {
         }
     }
 
-    // note: boardId comes from monday.get('context') on the client.
-    // The shortLivedToken is scoped to the user's existing permissions, so even a tampered boardId can't escalate access beyond what the user already has.
     let itemId: string;
     try {
         itemId = await retry(
@@ -45,7 +43,6 @@ orders.post('/', async (c) => {
                 createItem({
                     boardId: result.data.boardId,
                     itemName: `${result.data.first_name} ${result.data.last_name}`,
-                    token: user.dat.shortLivedToken,
                 }),
             { retries: 3 }
         );
@@ -68,7 +65,6 @@ orders.post('/', async (c) => {
                             boxNumber: i + 1,
                             inscription: box.inscription,
                             fragranceNames: box.fragrance_ids.map((id) => nameById.get(id)!), // validated above
-                            token: user.dat.shortLivedToken,
                         }),
                     { retries: 3 }
                 )
