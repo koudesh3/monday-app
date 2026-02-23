@@ -105,11 +105,33 @@ describe('validation rules', () => {
 });
 
 describe('validateOrder', () => {
-  const mockFragrance = {
+  const mockFragrance1 = {
     id: '1',
-    name: 'Test',
+    name: 'Lavender',
     description: 'Test',
     category: 'Fresh',
+    image_url: 'https://example.com/image.jpg',
+    recipe: 'Test',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
+  };
+
+  const mockFragrance2 = {
+    id: '2',
+    name: 'Rose',
+    description: 'Test',
+    category: 'Floral',
+    image_url: 'https://example.com/image.jpg',
+    recipe: 'Test',
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
+  };
+
+  const mockFragrance3 = {
+    id: '3',
+    name: 'Vanilla',
+    description: 'Test',
+    category: 'Sweet',
     image_url: 'https://example.com/image.jpg',
     recipe: 'Test',
     created_at: '2024-01-01',
@@ -125,7 +147,7 @@ describe('validateOrder', () => {
       shippingAddress: '123 Main St',
       boxes: [
         {
-          fragrances: [mockFragrance, mockFragrance, mockFragrance],
+          fragrances: [mockFragrance1, mockFragrance2, mockFragrance3],
           inscription: 'Happy Birthday',
         },
       ],
@@ -143,7 +165,7 @@ describe('validateOrder', () => {
       shippingAddress: '123 Main St',
       boxes: [
         {
-          fragrances: [mockFragrance, mockFragrance, mockFragrance],
+          fragrances: [mockFragrance1, mockFragrance2, mockFragrance3],
           inscription: '',
         },
       ],
@@ -163,7 +185,7 @@ describe('validateOrder', () => {
       shippingAddress: '123 Main St',
       boxes: [
         {
-          fragrances: [mockFragrance, mockFragrance, mockFragrance],
+          fragrances: [mockFragrance1, mockFragrance2, mockFragrance3],
           inscription: '',
         },
       ],
@@ -198,7 +220,7 @@ describe('validateOrder', () => {
       shippingAddress: '123 Main St',
       boxes: [
         {
-          fragrances: [mockFragrance, null, null],
+          fragrances: [mockFragrance1],
           inscription: '',
         },
       ],
@@ -218,7 +240,7 @@ describe('validateOrder', () => {
       shippingAddress: '123 Main St',
       boxes: [
         {
-          fragrances: [mockFragrance, mockFragrance, mockFragrance],
+          fragrances: [mockFragrance1, mockFragrance2, mockFragrance3],
           inscription: 'a'.repeat(201), // Over 200 chars
         },
       ],
@@ -238,11 +260,11 @@ describe('validateOrder', () => {
       shippingAddress: '123 Main St',
       boxes: [
         {
-          fragrances: [mockFragrance, mockFragrance, mockFragrance],
+          fragrances: [mockFragrance1, mockFragrance2, mockFragrance3],
           inscription: '', // Valid
         },
         {
-          fragrances: [mockFragrance, null, null],
+          fragrances: [mockFragrance1],
           inscription: 'a'.repeat(201), // Invalid
         },
       ],
@@ -264,12 +286,63 @@ describe('validateOrder', () => {
       shippingAddress: '123 Main St',
       boxes: [
         {
-          fragrances: [mockFragrance, mockFragrance, mockFragrance],
+          fragrances: [mockFragrance1, mockFragrance2, mockFragrance3],
           inscription: '',
         },
       ],
     };
 
     expect(validateOrder(payload)).toBeNull();
+  });
+
+  it('should fail for duplicate fragrances in a box', () => {
+    const payload: OrderPayload = {
+      firstName: 'John',
+      lastName: 'Smith',
+      email: 'john@example.com',
+      phone: '555-012-3456',
+      shippingAddress: '123 Main St',
+      boxes: [
+        {
+          fragrances: [mockFragrance1, mockFragrance1, mockFragrance2], // Duplicate fragrance1
+          inscription: '',
+        },
+      ],
+    };
+
+    const errors = validateOrder(payload);
+    expect(errors).not.toBeNull();
+    expect(errors?.boxErrors?.[0]?.slots).toBe('All fragrances must be unique');
+  });
+
+  it('should fail for more than 3 fragrances', () => {
+    const fragrance4 = {
+      id: '4',
+      name: 'Sandalwood',
+      description: 'Test',
+      category: 'Woody',
+      image_url: 'https://example.com/image.jpg',
+      recipe: 'Test',
+      created_at: '2024-01-01',
+      updated_at: '2024-01-01',
+    };
+
+    const payload: OrderPayload = {
+      firstName: 'John',
+      lastName: 'Smith',
+      email: 'john@example.com',
+      phone: '555-012-3456',
+      shippingAddress: '123 Main St',
+      boxes: [
+        {
+          fragrances: [mockFragrance1, mockFragrance2, mockFragrance3, fragrance4],
+          inscription: '',
+        },
+      ],
+    };
+
+    const errors = validateOrder(payload);
+    expect(errors).not.toBeNull();
+    expect(errors?.boxErrors?.[0]?.slots).toBe('Maximum 3 fragrances allowed');
   });
 });
