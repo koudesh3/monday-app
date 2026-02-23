@@ -21,13 +21,16 @@ export interface UseFragrancesResult {
  * Manage fragrance catalog with CRUD operations
  * - Uses TanStack Query for automatic caching, deduplication, and refetching
  * - Mutations invalidate queries to refetch from server (no state drift)
+ *
+ * @param enabled - Whether to fetch fragrances (wait for auth token to be set)
  */
-export function useFragrances(): UseFragrancesResult {
+export function useFragrances(enabled: boolean): UseFragrancesResult {
   const queryClient = useQueryClient();
 
   const { data: fragrances = [], isLoading, error: queryError } = useQuery({
     queryKey: ['fragrances'],
     queryFn: fragrancesApi.getAll,
+    enabled,
   });
 
   const addMutation = useMutation({
