@@ -9,7 +9,7 @@ import { TextField, Flex, Box as VibeBox } from '@vibe/core';
 import { Button } from '@vibe/button';
 import { IconButton } from '@vibe/icon-button';
 import { Settings } from '@vibe/icons';
-import { BoxConfig, BoxConfigRef } from './BoxConfig';
+import { OrderLine, OrderLineRef } from './OrderLine';
 import type { Fragrance } from '../../api/fragrances';
 import type { Box } from '../../hooks/useBoxes';
 
@@ -33,7 +33,7 @@ export interface OrderFormProps {
   lastNameError?: string | null;
   boxesError?: string | null;
   boxErrors?: Array<{ slots?: string; inscription?: string } | null>;
-  inscriptionRefs: React.MutableRefObject<(BoxConfigRef | null)[]>;
+  inscriptionRefs: React.MutableRefObject<(OrderLineRef | null)[]>;
 }
 
 /**
@@ -125,7 +125,7 @@ export function OrderForm({
 
             <Flex direction="column" gap="medium">
               {boxes.map((box, index) => (
-                <BoxConfig
+                <OrderLine
                   key={index}
                   ref={(el) => (inscriptionRefs.current[index] = el)}
                   box={box}

@@ -1,6 +1,6 @@
 /**
- * SlotPicker
- * A single fragrance slot within a box
+ * FragranceSlot
+ * A single fragrance slot within an order line
  * Two states: empty (dashed button) or filled (card with remove button)
  */
 
@@ -11,12 +11,12 @@ import { IconButton } from '@vibe/icon-button';
 import { Dialog, DialogContentContainer } from '@vibe/dialog';
 import { EmptyState } from '@vibe/core';
 import { Close, NavigationChevronDown } from '@vibe/icons';
-import { FragranceRow } from './FragranceRow';
+import { FragranceListItem } from './FragranceListItem';
 import { CategoryDot } from '../atoms/CategoryDot';
 import { useSearch } from '../../hooks/useSearch';
 import type { Fragrance } from '../../api/fragrances';
 
-export interface SlotPickerProps {
+export interface FragranceSlotProps {
   fragrance: Fragrance | null;
   availableFragrances: Fragrance[];
   usedIds: Set<string>;
@@ -30,16 +30,16 @@ export interface SlotPickerProps {
  * - Empty: dashed border button with placeholder, opens picker dropdown
  * - Filled: colored card showing selected fragrance with remove button
  *
- * Picker dropdown uses Dialog for positioning with Search + FragranceRow list
+ * Picker dropdown uses Dialog for positioning with Search + FragranceListItem list
  */
-export function SlotPicker({
+export function FragranceSlot({
   fragrance,
   availableFragrances,
   usedIds,
   onSelect,
   onRemove,
   slotNumber,
-}: SlotPickerProps) {
+}: FragranceSlotProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [emptyButtonRef, isEmptyButtonHovered] = useHover<HTMLButtonElement>();
 
@@ -96,7 +96,7 @@ export function SlotPicker({
                     />
                   ) : (
                     filtered.map((f) => (
-                      <FragranceRow
+                      <FragranceListItem
                         key={f.id}
                         fragrance={f}
                         mode="selectable"

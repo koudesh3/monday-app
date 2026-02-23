@@ -1,5 +1,5 @@
 /**
- * AdminPanel
+ * FragranceEditor
  * Modal for managing the fragrance catalog
  */
 
@@ -9,12 +9,12 @@ import { Search, Flex } from '@vibe/core';
 import { Button } from '@vibe/button';
 import { Modal, ModalHeader, ModalContent, ModalBasicLayout } from '@vibe/core/next';
 import { Divider, EmptyState } from '@vibe/core';
-import { FragranceRow } from '../molecules/FragranceRow';
+import { FragranceListItem } from '../molecules/FragranceListItem';
 import { FragranceForm } from '../molecules/FragranceForm';
 import { useSearch } from '../../hooks/useSearch';
 import type { Fragrance, FragranceForm as FragranceFormData } from '../../api/fragrances';
 
-export interface AdminPanelProps {
+export interface FragranceEditorProps {
     open: boolean;
     onClose: () => void;
     fragrances: Fragrance[];
@@ -39,14 +39,14 @@ type DeleteState =
  * - Edit/delete existing fragrances
  * - Delete confirmation dialog
  */
-export function AdminPanel({
+export function FragranceEditor({
     open,
     onClose,
     fragrances,
     onAdd,
     onUpdate,
     onDelete,
-}: AdminPanelProps) {
+}: FragranceEditorProps) {
     const [formState, setFormState] = useState<FormState>({ mode: 'hidden' });
     const [deleteState, setDeleteState] = useState<DeleteState>({ open: false });
     const [formError, setFormError] = useState<string | null>(null);
@@ -171,7 +171,7 @@ export function AdminPanel({
                             ) : (
                                 filtered.map((fragrance, index) => (
                                     <div key={fragrance.id}>
-                                        <FragranceRow
+                                        <FragranceListItem
                                             fragrance={fragrance}
                                             mode="editable"
                                             onEdit={handleEdit}

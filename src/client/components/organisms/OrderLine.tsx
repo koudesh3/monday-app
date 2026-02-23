@@ -1,6 +1,6 @@
 /**
- * BoxConfig
- * A single gift box configuration with 3 fragrance slots and inscription
+ * OrderLine
+ * A single order line (gift box) with 3 fragrance slots and inscription
  */
 
 import React, { useState, useImperativeHandle, forwardRef } from 'react';
@@ -8,12 +8,12 @@ import { Heading, Text } from '@vibe/typography';
 import { TextField, Flex, Box as VibeBox } from '@vibe/core';
 import { IconButton } from '@vibe/icon-button';
 import { Delete } from '@vibe/icons';
-import { SlotPicker } from '../molecules/SlotPicker';
+import { FragranceSlot } from '../molecules/FragranceSlot';
 import { rules } from '../../validation';
 import type { Fragrance } from '../../api/fragrances';
 import type { Box } from '../../hooks/useBoxes';
 
-export interface BoxConfigProps {
+export interface OrderLineProps {
   box: Box;
   boxNumber: number;
   availableFragrances: Fragrance[];
@@ -24,17 +24,17 @@ export interface BoxConfigProps {
   inscriptionError?: string | null;
 }
 
-export interface BoxConfigRef {
+export interface OrderLineRef {
   value: string;
 }
 
 /**
- * Gift box configuration component.
+ * Order line component (gift box configuration).
  * - 3 fragrance slots (prevents duplicates within the box)
  * - Inscription field with blur-based sync to parent
  * - Exposes inscription via ref for submission-time reading
  */
-export const BoxConfig = forwardRef<BoxConfigRef, BoxConfigProps>(
+export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
   (
     {
       box,
@@ -98,7 +98,7 @@ export const BoxConfig = forwardRef<BoxConfigRef, BoxConfigProps>(
         <VibeBox marginBottom="medium">
           <Flex direction="column" gap="medium">
             {box.fragrances.map((fragrance, slotIndex) => (
-              <SlotPicker
+              <FragranceSlot
                 key={slotIndex}
                 fragrance={fragrance}
                 availableFragrances={availableFragrances}
@@ -136,4 +136,4 @@ export const BoxConfig = forwardRef<BoxConfigRef, BoxConfigProps>(
   }
 );
 
-BoxConfig.displayName = 'BoxConfig';
+OrderLine.displayName = 'OrderLine';

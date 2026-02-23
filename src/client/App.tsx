@@ -13,9 +13,9 @@ import { useBoxes } from './hooks/useBoxes';
 import { useOrder } from './hooks/useOrder';
 import { validateOrder } from './validation';
 import { OrderForm } from './components/organisms/OrderForm';
-import { SuccessScreen } from './components/organisms/SuccessScreen';
-import { AdminPanel } from './components/organisms/AdminPanel';
-import type { BoxConfigRef } from './components/organisms/BoxConfig';
+import { OrderConfirmation } from './components/organisms/OrderConfirmation';
+import { FragranceEditor } from './components/organisms/FragranceEditor';
+import type { OrderLineRef } from './components/organisms/OrderLine';
 import type { ValidationErrors } from './validation';
 
 export default function App() {
@@ -36,7 +36,7 @@ export default function App() {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors | null>(null);
 
   // Inscription refs for submission-time reading
-  const inscriptionRefs = useRef<(BoxConfigRef | null)[]>([]);
+  const inscriptionRefs = useRef<(OrderLineRef | null)[]>([]);
 
   // Toast state
   const [toast, setToast] = useState<{
@@ -213,7 +213,7 @@ export default function App() {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--primary-background-hover-color)' }}>
       {/* Main content: Order form or success screen */}
       {submitted && response ? (
-        <SuccessScreen
+        <OrderConfirmation
           boxCount={boxes.length}
           itemId={response.itemId}
           onNewOrder={handleNewOrder}
@@ -251,7 +251,7 @@ export default function App() {
       )}
 
       {/* Admin panel modal */}
-      <AdminPanel
+      <FragranceEditor
         open={showAdmin}
         onClose={() => setShowAdmin(false)}
         fragrances={fragrances}

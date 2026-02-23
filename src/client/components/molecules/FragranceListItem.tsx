@@ -1,6 +1,6 @@
 /**
- * FragranceRow
- * A single fragrance displayed as a row
+ * FragranceListItem
+ * A single fragrance displayed as a list item
  * Supports two modes: selectable (for picker) and editable (for admin panel)
  */
 
@@ -13,7 +13,7 @@ import { useHover } from '@vibe/core';
 import { CategoryDot } from '../atoms/CategoryDot';
 import type { Fragrance } from '../../api/fragrances';
 
-export interface FragranceRowProps {
+export interface FragranceListItemProps {
     fragrance: Fragrance;
     mode: 'selectable' | 'editable';
     onSelect?: (fragrance: Fragrance) => void;
@@ -26,13 +26,13 @@ export interface FragranceRowProps {
  * - mode="selectable": Click fires onSelect (used in picker dropdown)
  * - mode="editable": Shows edit/delete IconButtons (used in admin panel)
  */
-export function FragranceRow({
+export function FragranceListItem({
     fragrance,
     mode,
     onSelect,
     onEdit,
     onDelete,
-}: FragranceRowProps) {
+}: FragranceListItemProps) {
     const [hoverRef, isHovered] = useHover<HTMLDivElement>();
 
     const handleClick = () => {

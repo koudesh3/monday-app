@@ -1,5 +1,5 @@
 /**
- * SuccessScreen
+ * OrderConfirmation
  * Post-submission confirmation screen
  */
 
@@ -8,17 +8,17 @@ import { Heading, Text } from '@vibe/typography';
 import { Button } from '@vibe/button';
 import { Flex, Box } from '@vibe/core';
 
-export interface SuccessScreenProps {
+export interface OrderConfirmationProps {
   boxCount: number;
   itemId: string;
   onNewOrder: () => void;
 }
 
 /**
- * Success confirmation after order submission.
+ * Order confirmation after successful submission.
  * Shows box count and Monday.com item ID.
  */
-export function SuccessScreen({ boxCount, itemId, onNewOrder }: SuccessScreenProps) {
+export function OrderConfirmation({ boxCount, itemId, onNewOrder }: OrderConfirmationProps) {
   return (
     <Flex align="center" justify="center" padding="large">
       <Box border rounded="medium" backgroundColor="primaryBackgroundColor" padding="xxl">
