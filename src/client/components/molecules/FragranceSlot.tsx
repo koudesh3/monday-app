@@ -1,19 +1,10 @@
 /**
  * FragranceSlot
- * A single fragrance slot within an order line
- * Two states: empty (dashed button) or filled (card with remove button)
+ * Multi-select dropdown for selecting fragrances
  */
 
-import React, { useState } from 'react';
-import { Text } from '@vibe/typography';
-import { Search, Flex, Box, useHover } from '@vibe/core';
-import { IconButton } from '@vibe/icon-button';
-import { Dialog, DialogContentContainer } from '@vibe/dialog';
-import { EmptyState } from '@vibe/core';
-import { Close, NavigationChevronDown } from '@vibe/icons';
-import { FragranceListItem } from './FragranceListItem';
-import { CategoryDot } from '../atoms/CategoryDot';
-import { useSearch } from '../../hooks/useSearch';
+import React, { useMemo } from 'react';
+import { Dropdown } from '@vibe/core';
 import type { Fragrance } from '../../api/fragrances';
 
 export interface FragranceSlotProps {
@@ -26,11 +17,7 @@ export interface FragranceSlotProps {
 }
 
 /**
- * Fragrance slot picker with two visual states:
- * - Empty: dashed border button with placeholder, opens picker dropdown
- * - Filled: colored card showing selected fragrance with remove button
- *
- * Picker dropdown uses Dialog for positioning with Search + FragranceListItem list
+ * Fragrance slot picker using multi-select dropdown
  */
 export function FragranceSlot({
   fragrance,
@@ -40,116 +27,24 @@ export function FragranceSlot({
   onRemove,
   slotNumber,
 }: FragranceSlotProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [emptyButtonRef, isEmptyButtonHovered] = useHover<HTMLButtonElement>();
-
-  // Filter out fragrances already used in this box
-  const selectableFragrances = availableFragrances.filter(
-    (f) => !usedIds.has(f.id) || f.id === fragrance?.id
+  const options = useMemo(
+    () =>
+      availableFragrances.map((f) => ({
+        value: f.id,
+        label: f.name,
+      })),
+    [availableFragrances]
   );
 
-  const { query, setQuery, filtered } = useSearch(selectableFragrances, [
-    'name',
-    'description',
-    'category',
-  ]);
-
-  const handleSelect = (selected: Fragrance) => {
-    onSelect(selected);
-    setQuery('');
-    setIsOpen(false);
-  };
-
-  const handleClose = () => {
-    setIsOpen(false);
-    setQuery('');
-  };
-
-  const handleRemove = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onRemove();
-  };
-
-  // Empty state
-  if (!fragrance) {
-    return (
-      <div>
-        <Dialog
-          open={isOpen}
-          showTrigger={[]}
-          hideTrigger={['clickoutside', 'esckey']}
-          onDialogDidHide={handleClose}
-          content={() => (
-            <DialogContentContainer>
-              <Box border rounded="medium" backgroundColor="primaryBackgroundColor">
-                <Search
-                  placeholder="Search fragrances"
-                  value={query}
-                  onChange={setQuery}
-                  autoFocus
-                />
-
-                <div>
-                  {filtered.length === 0 ? (
-                    <EmptyState
-                      description={query ? 'No fragrances found' : 'No fragrances available'}
-                    />
-                  ) : (
-                    filtered.map((f) => (
-                      <FragranceListItem
-                        key={f.id}
-                        fragrance={f}
-                        mode="selectable"
-                        onSelect={handleSelect}
-                      />
-                    ))
-                  )}
-                </div>
-              </Box>
-            </DialogContentContainer>
-          )}
-        >
-          <button
-            ref={emptyButtonRef}
-            type="button"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label={`Select fragrance for slot ${slotNumber}`}
-          >
-            <NavigationChevronDown />
-            <Text type="text3" color="secondary">
-              Select fragrance {slotNumber}
-            </Text>
-          </button>
-        </Dialog>
-      </div>
-    );
-  }
-
-  // Filled state
   return (
-    <Box border rounded="medium" backgroundColor="primaryBackgroundColor" padding="small">
-      <Flex align="center" justify="space-between" gap="medium">
-        <Flex align="start" gap="small">
-          <CategoryDot category={fragrance.category} />
-          <Box>
-            <Text type="text2" weight="medium" ellipsis>
-              {fragrance.name}
-            </Text>
-            {fragrance.description && (
-              <Text type="text3" color="secondary" ellipsis>
-                {fragrance.description}
-              </Text>
-            )}
-          </Box>
-        </Flex>
-        <IconButton
-          icon={Close}
-          size="small"
-          kind="tertiary"
-          ariaLabel="Remove fragrance"
-          onClick={handleRemove}
-        />
-      </Flex>
-    </Box>
+    <div style={{ width: '350px', marginBottom: '50px' }}>
+      <Dropdown
+        placeholder={`Select fragrance ${slotNumber}`}
+        defaultValue={fragrance ? [{ value: fragrance.id, label: fragrance.name }] : []}
+        options={options}
+        multi
+        clearAriaLabel="Clear"
+      />
+    </div>
   );
 }
