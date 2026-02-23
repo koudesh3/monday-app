@@ -17,7 +17,7 @@ export interface Fragrance {
 }
 
 export interface Box {
-  fragrances: (Fragrance | null)[];
+  fragrances: Fragrance[];
   inscription: string;
 }
 
@@ -149,10 +149,17 @@ export function validateOrder(payload: OrderPayload): ValidationErrors | null {
   const boxErrors = payload.boxes.map((box): BoxErrors | null => {
     const be: BoxErrors = {};
 
-    // Check all 3 fragrances are filled
-    const filled = box.fragrances.filter(Boolean);
-    if (filled.length < 3) {
+    // Check exactly 3 unique fragrances are selected
+    if (box.fragrances.length < 3) {
       be.slots = "All 3 fragrances required";
+    } else if (box.fragrances.length > 3) {
+      be.slots = "Maximum 3 fragrances allowed";
+    } else {
+      // Check for duplicates
+      const uniqueIds = new Set(box.fragrances.map((f) => f.id));
+      if (uniqueIds.size !== 3) {
+        be.slots = "All fragrances must be unique";
+      }
     }
 
     // Validate inscription
