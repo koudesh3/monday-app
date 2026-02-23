@@ -74,7 +74,19 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
     const isComplete = filledCount === 3;
 
     return (
-      <VibeBox border rounded="medium" backgroundColor="primaryBackgroundColor" padding="medium">
+      <VibeBox border rounded="medium" backgroundColor="primaryBackgroundColor" padding="medium" style={{ width: '100%', position: 'relative' }}>
+        {onRemove && (
+          <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 10 }}>
+            <IconButton
+              icon={Delete}
+              size="small"
+              kind="tertiary"
+              ariaLabel={`Remove box ${boxNumber}`}
+              onClick={onRemove}
+              style={{ color: 'var(--negative-color, #D83A52)' }}
+            />
+          </div>
+        )}
         <VibeBox marginBottom="medium">
           <Flex align="center" gap="medium">
             <div>
@@ -83,20 +95,11 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
             <Text type="text3" color="secondary">
               {filledCount} / 3 fragrances
             </Text>
-            {onRemove && (
-              <IconButton
-                icon={Delete}
-                size="small"
-                kind="tertiary"
-                ariaLabel={`Remove box ${boxNumber}`}
-                onClick={onRemove}
-              />
-            )}
           </Flex>
         </VibeBox>
 
-        <VibeBox marginBottom="medium">
-          <Flex direction="column" gap="medium">
+        <VibeBox marginBottom="medium" style={{ width: '100%' }}>
+          <Flex direction="row" gap="medium" style={{ width: '100%' }}>
             {box.fragrances.map((fragrance, slotIndex) => (
               <FragranceSlot
                 key={slotIndex}
