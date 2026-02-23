@@ -23,13 +23,16 @@ export default function App() {
   const { boardId, ready, error: mondayError } = useMondayContext();
 
   // Domain state
-  const { fragrances, loading: fragrancesLoading, add, update, remove } = useFragrances();
+  const { fragrances, loading: fragrancesLoading, add, update, remove } = useFragrances(ready);
   const { boxes, addBox, removeBox, setSlot, clearFragranceFromAll, allComplete } = useBoxes();
   const { submitting, submitted, error: submitError, response, submit, reset } = useOrder();
 
   // Form state
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [shippingAddress, setShippingAddress] = useState('');
   const [showAdmin, setShowAdmin] = useState(false);
 
   // Validation state
@@ -49,6 +52,9 @@ export default function App() {
   const canSubmit =
     !!firstName.trim() &&
     !!lastName.trim() &&
+    !!email.trim() &&
+    !!phone.trim() &&
+    !!shippingAddress.trim() &&
     boxes.length > 0 &&
     allComplete &&
     !submitting &&
@@ -65,7 +71,14 @@ export default function App() {
     }));
 
     // Validate
-    const errors = validateOrder({ firstName, lastName, boxes: currentBoxes });
+    const errors = validateOrder({
+      firstName,
+      lastName,
+      email,
+      phone,
+      shippingAddress,
+      boxes: currentBoxes
+    });
     if (errors) {
       setValidationErrors(errors);
       setToast({
@@ -84,12 +97,15 @@ export default function App() {
       boardId,
       first_name: firstName.trim(),
       last_name: lastName.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      shipping_address: shippingAddress.trim(),
       boxes: currentBoxes.map((box) => ({
         inscription: box.inscription,
         fragrance_ids: box.fragrances.map((f) => f!.id) as [string, string, string],
       })),
     });
-  }, [boardId, boxes, firstName, lastName, submit]);
+  }, [boardId, boxes, firstName, lastName, email, phone, shippingAddress, submit]);
 
   // Handle fragrance CRUD with error handling
   const handleAddFragrance = useCallback(
@@ -140,6 +156,9 @@ export default function App() {
     reset();
     setFirstName('');
     setLastName('');
+    setEmail('');
+    setPhone('');
+    setShippingAddress('');
     setValidationErrors(null);
     // useBoxes will maintain its state, but we could reset it if needed
   }, [reset]);
@@ -210,7 +229,7 @@ export default function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--primary-background-hover-color)' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--primary-background-hover-color)', margin: 0, padding: '32px 0' }}>
       {/* Main content: Order form or success screen */}
       {submitted && response ? (
         <OrderConfirmation
@@ -221,13 +240,18 @@ export default function App() {
       ) : (
         <OrderForm
           onOpenAdmin={() => {
-            console.log('Settings button clicked, opening admin panel');
             setShowAdmin(true);
           }}
           firstName={firstName}
           lastName={lastName}
+          email={email}
+          phone={phone}
+          shippingAddress={shippingAddress}
           onFirstNameChange={setFirstName}
           onLastNameChange={setLastName}
+          onEmailChange={setEmail}
+          onPhoneChange={setPhone}
+          onShippingAddressChange={setShippingAddress}
           boxes={boxes}
           availableFragrances={fragrances}
           onSlotChange={setSlot}
@@ -244,6 +268,9 @@ export default function App() {
           submitError={submitError}
           firstNameError={validationErrors?.firstName}
           lastNameError={validationErrors?.lastName}
+          emailError={validationErrors?.email}
+          phoneError={validationErrors?.phone}
+          shippingAddressError={validationErrors?.shippingAddress}
           boxesError={validationErrors?.boxes}
           boxErrors={validationErrors?.boxErrors}
           inscriptionRefs={inscriptionRefs}
