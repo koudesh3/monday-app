@@ -26,7 +26,7 @@ export interface OrderFormProps {
     onShippingAddressChange: (value: string) => void;
     boxes: Box[];
     availableFragrances: Fragrance[];
-    onSlotChange: (boxIndex: number, slotIndex: number, fragrance: Fragrance | null) => void;
+    onFragrancesChange: (boxIndex: number, fragrances: Fragrance[]) => void;
     onInscriptionChange: (boxIndex: number, inscription: string) => void;
     onAddBox: () => void;
     onRemoveBox: (index: number) => void;
@@ -63,7 +63,7 @@ export function OrderForm({
     onShippingAddressChange,
     boxes,
     availableFragrances,
-    onSlotChange,
+    onFragrancesChange,
     onInscriptionChange,
     onAddBox,
     onRemoveBox,
@@ -182,7 +182,7 @@ export function OrderForm({
                                     box={box}
                                     boxNumber={index + 1}
                                     availableFragrances={availableFragrances}
-                                    onSlotChange={(slotIndex, fragrance) => onSlotChange(index, slotIndex, fragrance)}
+                                    onFragrancesChange={(fragrances) => onFragrancesChange(index, fragrances)}
                                     onInscriptionChange={(inscription) => onInscriptionChange(index, inscription)}
                                     onRemove={() => onRemoveBox(index)}
                                     slotsError={boxErrors?.[index]?.slots}

@@ -24,7 +24,7 @@ export default function App() {
 
   // Domain state
   const { fragrances, loading: fragrancesLoading, add, update, remove } = useFragrances(ready);
-  const { boxes, addBox, removeBox, setSlot, clearFragranceFromAll, allComplete } = useBoxes();
+  const { boxes, addBox, removeBox, setFragrances, clearFragranceFromAll, allComplete } = useBoxes();
   const { submitting, submitted, error: submitError, response, submit, reset } = useOrder();
 
   // Form state
@@ -102,7 +102,7 @@ export default function App() {
       shipping_address: shippingAddress.trim(),
       boxes: currentBoxes.map((box) => ({
         inscription: box.inscription,
-        fragrance_ids: box.fragrances.map((f) => f!.id) as [string, string, string],
+        fragrance_ids: box.fragrances.map((f) => f.id) as [string, string, string],
       })),
     });
   }, [boardId, boxes, firstName, lastName, email, phone, shippingAddress, submit]);
@@ -254,7 +254,7 @@ export default function App() {
           onShippingAddressChange={setShippingAddress}
           boxes={boxes}
           availableFragrances={fragrances}
-          onSlotChange={setSlot}
+          onFragrancesChange={setFragrances}
           onInscriptionChange={(boxIndex, inscription) => {
             const updatedBox = { ...boxes[boxIndex], inscription };
             const updatedBoxes = [...boxes];
