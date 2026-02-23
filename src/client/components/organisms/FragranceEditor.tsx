@@ -108,8 +108,6 @@ export function FragranceEditor({
         setFormError(null);
     };
 
-    console.log('AdminPanel render, open:', open);
-
     return (
         <Modal
             id="admin-panel-modal"
@@ -125,13 +123,16 @@ export function FragranceEditor({
                 />
 
                 <ModalContent>
-                    <Flex direction="column" gap="medium">
-                        <Flex gap="medium" align="center">
-                            <Search
-                                placeholder="Search fragrances"
-                                value={query}
-                                onChange={setQuery}
-                            />
+                    <Flex direction="column" gap="medium" align="stretch">
+                        <Flex gap="large" align="center">
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <Search
+                                    placeholder="Search fragrances"
+                                    value={query}
+                                    onChange={setQuery}
+                                    className="full-width-search"
+                                />
+                            </div>
                             <Button
                                 kind="primary"
                                 size="small"
@@ -143,7 +144,7 @@ export function FragranceEditor({
                         </Flex>
 
                         {formState.mode !== 'hidden' && (
-                            <Flex direction="column" gap="medium">
+                            <Flex direction="column" gap="medium" align="stretch">
                                 {formError && (
                                     <Text type="text2" color="negative">
                                         {formError}
