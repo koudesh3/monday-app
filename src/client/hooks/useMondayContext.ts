@@ -50,7 +50,7 @@ export function useMondayContext(): MondayContext {
 
         // Get board context
         const contextResult = await monday.get('context');
-        const context = contextResult.data;
+        const context = contextResult.data as { boardId?: number };
 
         if (!context?.boardId) {
           throw new Error('Board context not available');
