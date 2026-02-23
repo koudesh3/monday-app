@@ -4,7 +4,6 @@ export const SessionUserSchema = z.object({
     dat: z.object({
         account_id: z.number(),
         user_id: z.number(),
-        shortLivedToken: z.string(),
     }),
 });
 
