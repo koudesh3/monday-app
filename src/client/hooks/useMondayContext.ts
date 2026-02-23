@@ -32,7 +32,8 @@ export function useMondayContext(): MondayContext {
   useEffect(() => {
     async function initialize() {
       try {
-        // Get session token (JWT with account_id, user_id, shortLivedToken)
+        // Get session token (JWT signed with Client Secret, contains account_id and user_id)
+        // Used to authenticate requests to our backend only — not for monday API calls
         const tokenResult = await monday.get('sessionToken');
         const sessionToken = tokenResult.data;
 
