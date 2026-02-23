@@ -1,9 +1,9 @@
 /**
  * useOrder
- * Manages order submission via API
+ * Manages order submission via API using TanStack Query
  */
 
-import { useState, useCallback } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import * as ordersApi from '../api/orders';
 import type { OrderPayload, OrderResponse } from '../api/orders';
 
@@ -18,46 +18,32 @@ export interface UseOrderResult {
 
 /**
  * Handle order submission
- * - submit() calls POST /orders with the payload
- * - Caller (App) is responsible for building the payload from UI state
+ * - Uses TanStack Query mutation for order submission
  * - On success, sets submitted: true and stores response
  * - On failure, sets error with message
- * - reset() clears submitted and error (for "New Order" flow)
+ * - reset() clears mutation state (for "New Order" flow)
  */
 export function useOrder(): UseOrderResult {
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [response, setResponse] = useState<OrderResponse | null>(null);
-
-  const submit = useCallback(async (payload: OrderPayload) => {
-    try {
-      setSubmitting(true);
-      setError(null);
-      const result = await ordersApi.submitOrder(payload);
-      setResponse(result);
-      setSubmitted(true);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to submit order';
+  const mutation = useMutation({
+    mutationFn: ordersApi.submitOrder,
+    onError: (err) => {
       console.error('Order submission error:', err);
-      setError(message);
-      setSubmitted(false);
-    } finally {
-      setSubmitting(false);
-    }
-  }, []);
+    },
+  });
 
-  const reset = useCallback(() => {
-    setSubmitted(false);
-    setError(null);
-    setResponse(null);
-  }, []);
+  const submit = async (payload: OrderPayload) => {
+    await mutation.mutateAsync(payload);
+  };
+
+  const reset = () => {
+    mutation.reset();
+  };
 
   return {
-    submitting,
-    submitted,
-    error,
-    response,
+    submitting: mutation.isPending,
+    submitted: mutation.isSuccess,
+    error: mutation.error ? (mutation.error instanceof Error ? mutation.error.message : 'Failed to submit order') : null,
+    response: mutation.data ?? null,
     submit,
     reset,
   };

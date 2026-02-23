@@ -1,9 +1,9 @@
 /**
  * useFragrances
- * Fetches and manages the fragrance catalog via API
+ * Fetches and manages the fragrance catalog via API using TanStack Query
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as fragrancesApi from '../api/fragrances';
 import type { Fragrance, FragranceForm } from '../api/fragrances';
 
@@ -19,61 +19,53 @@ export interface UseFragrancesResult {
 
 /**
  * Manage fragrance catalog with CRUD operations
- * - Fetches on mount
- * - Add/update/remove modify local state after API success
- * - Refresh re-fetches the full list
+ * - Uses TanStack Query for automatic caching, deduplication, and refetching
+ * - Mutations invalidate queries to refetch from server (no state drift)
  */
 export function useFragrances(): UseFragrancesResult {
-  const [fragrances, setFragrances] = useState<Fragrance[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  // Fetch all fragrances
-  const refresh = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const items = await fragrancesApi.getAll();
-      setFragrances(items);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load fragrances';
-      console.error('Error fetching fragrances:', err);
-      setError(message);
-      setFragrances([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const { data: fragrances = [], isLoading, error: queryError } = useQuery({
+    queryKey: ['fragrances'],
+    queryFn: fragrancesApi.getAll,
+  });
 
-  // Initial fetch on mount
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const addMutation = useMutation({
+    mutationFn: fragrancesApi.create,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['fragrances'] }),
+  });
 
-  // Add fragrance
-  const add = useCallback(async (form: FragranceForm) => {
-    const newFragrance = await fragrancesApi.create(form);
-    setFragrances((prev) => [...prev, newFragrance]);
-  }, []);
+  const updateMutation = useMutation({
+    mutationFn: ({ id, form }: { id: string; form: FragranceForm }) =>
+      fragrancesApi.update(id, form),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['fragrances'] }),
+  });
 
-  // Update fragrance
-  const update = useCallback(async (id: string, form: FragranceForm) => {
-    const updated = await fragrancesApi.update(id, form);
-    setFragrances((prev) =>
-      prev.map((item) => (item.id === id ? updated : item))
-    );
-  }, []);
+  const removeMutation = useMutation({
+    mutationFn: fragrancesApi.remove,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['fragrances'] }),
+  });
 
-  // Remove fragrance
-  const remove = useCallback(async (id: string) => {
-    await fragrancesApi.remove(id);
-    setFragrances((prev) => prev.filter((item) => item.id !== id));
-  }, []);
+  const add = async (form: FragranceForm) => {
+    await addMutation.mutateAsync(form);
+  };
+
+  const update = async (id: string, form: FragranceForm) => {
+    await updateMutation.mutateAsync({ id, form });
+  };
+
+  const remove = async (id: string) => {
+    await removeMutation.mutateAsync(id);
+  };
+
+  const refresh = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['fragrances'] });
+  };
 
   return {
     fragrances,
-    loading,
-    error,
+    loading: isLoading,
+    error: queryError ? (queryError instanceof Error ? queryError.message : 'Failed to load fragrances') : null,
     add,
     update,
     remove,
