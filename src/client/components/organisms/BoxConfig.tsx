@@ -74,18 +74,9 @@ export const BoxConfig = forwardRef<BoxConfigRef, BoxConfigProps>(
     const isComplete = filledCount === 3;
 
     return (
-      <VibeBox
-        border
-        rounded="medium"
-        backgroundColor="primaryBackgroundColor"
-        style={{
-          padding: '20px',
-          borderColor: isComplete ? 'var(--positive-color)' : undefined,
-          transition: 'border-color 0.15s ease',
-        }}
-      >
-        <Flex align="center" gap="medium" style={{ marginBottom: '16px' }}>
-          <div style={{ flex: 1 }}>
+      <VibeBox border rounded="medium" backgroundColor="primaryBackgroundColor" padding="medium">
+        <Flex align="center" gap="medium" marginBottom="medium">
+          <div>
             <Heading type="h3">Box {boxNumber}</Heading>
           </div>
           <Text type="text3" color="secondary">
@@ -102,24 +93,28 @@ export const BoxConfig = forwardRef<BoxConfigRef, BoxConfigProps>(
           )}
         </Flex>
 
-        <Flex direction="column" gap="medium" style={{ marginBottom: '16px' }}>
-          {box.fragrances.map((fragrance, slotIndex) => (
-            <SlotPicker
-              key={slotIndex}
-              fragrance={fragrance}
-              availableFragrances={availableFragrances}
-              usedIds={usedIds}
-              onSelect={(f) => onSlotChange(slotIndex, f)}
-              onRemove={() => onSlotChange(slotIndex, null)}
-              slotNumber={slotIndex + 1}
-            />
-          ))}
-        </Flex>
+        <VibeBox marginBottom="medium">
+          <Flex direction="column" gap="medium">
+            {box.fragrances.map((fragrance, slotIndex) => (
+              <SlotPicker
+                key={slotIndex}
+                fragrance={fragrance}
+                availableFragrances={availableFragrances}
+                usedIds={usedIds}
+                onSelect={(f) => onSlotChange(slotIndex, f)}
+                onRemove={() => onSlotChange(slotIndex, null)}
+                slotNumber={slotIndex + 1}
+              />
+            ))}
+          </Flex>
+        </VibeBox>
 
         {slotsError && (
-          <Text type="text3" color="negative" style={{ marginBottom: '12px' }}>
-            {slotsError}
-          </Text>
+          <VibeBox marginBottom="small">
+            <Text type="text3" color="negative">
+              {slotsError}
+            </Text>
+          </VibeBox>
         )}
 
         <TextField

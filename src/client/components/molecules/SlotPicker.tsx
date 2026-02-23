@@ -73,7 +73,7 @@ export function SlotPicker({
   // Empty state
   if (!fragrance) {
     return (
-      <div style={{ position: 'relative' }}>
+      <div>
         <Dialog
           open={isOpen}
           showTrigger={[]}
@@ -81,19 +81,7 @@ export function SlotPicker({
           onDialogDidHide={handleClose}
           content={() => (
             <DialogContentContainer>
-              <Box
-                border
-                rounded="medium"
-                backgroundColor="primaryBackgroundColor"
-                style={{
-                  width: '400px',
-                  maxHeight: '500px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
-                  overflow: 'hidden',
-                }}
-              >
+              <Box border rounded="medium" backgroundColor="primaryBackgroundColor">
                 <Search
                   placeholder="Search fragrances"
                   value={query}
@@ -101,7 +89,7 @@ export function SlotPicker({
                   autoFocus
                 />
 
-                <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
+                <div>
                   {filtered.length === 0 ? (
                     <EmptyState
                       description={query ? 'No fragrances found' : 'No fragrances available'}
@@ -126,20 +114,6 @@ export function SlotPicker({
             type="button"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={`Select fragrance for slot ${slotNumber}`}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              width: '100%',
-              minHeight: '80px',
-              padding: '16px',
-              border: `2px dashed ${isEmptyButtonHovered ? 'var(--primary-color)' : 'var(--ui-border-color)'}`,
-              backgroundColor: isEmptyButtonHovered ? 'var(--primary-background-hover-color)' : 'transparent',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-            }}
           >
             <NavigationChevronDown />
             <Text type="text3" color="secondary">
@@ -153,11 +127,11 @@ export function SlotPicker({
 
   // Filled state
   return (
-    <Box border rounded="medium" backgroundColor="primaryBackgroundColor" style={{ padding: '12px' }}>
+    <Box border rounded="medium" backgroundColor="primaryBackgroundColor" padding="small">
       <Flex align="center" justify="space-between" gap="medium">
-        <Flex align="start" gap="small" style={{ flex: 1, minWidth: 0 }}>
+        <Flex align="start" gap="small">
           <CategoryDot category={fragrance.category} />
-          <Box style={{ flex: 1, minWidth: 0 }}>
+          <Box>
             <Text type="text2" weight="medium" ellipsis>
               {fragrance.name}
             </Text>

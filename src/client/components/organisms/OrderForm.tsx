@@ -70,23 +70,9 @@ export function OrderForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      <VibeBox
-        backgroundColor="primaryBackgroundColor"
-        style={{
-          maxWidth: '900px',
-          margin: '0 auto',
-          padding: '24px',
-        }}
-      >
-        <Flex direction="column" style={{ gap: '32px' }}>
-          <Flex
-            align="center"
-            justify="space-between"
-            style={{
-              paddingBottom: '16px',
-              borderBottom: '1px solid var(--ui-border-color)',
-            }}
-          >
+      <VibeBox backgroundColor="primaryBackgroundColor" padding="large" margin="auto">
+        <Flex direction="column" gap="large">
+          <Flex align="center" justify="space-between">
             <Heading type="h1">New Production Order</Heading>
             <IconButton
               icon={Settings}
@@ -98,13 +84,7 @@ export function OrderForm({
 
           <Flex direction="column" gap="medium">
             <Heading type="h2">Order Name</Heading>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '16px',
-              }}
-            >
+            <Flex gap="medium">
               <TextField
                 title="First Name"
                 placeholder="Enter first name"
@@ -121,12 +101,12 @@ export function OrderForm({
                 validation={lastNameError ? { status: 'error', text: lastNameError } : undefined}
                 required
               />
-            </div>
+            </Flex>
           </Flex>
 
           <Flex direction="column" gap="medium">
             <Flex align="center" gap="medium">
-              <div style={{ flex: 1 }}>
+              <div>
                 <Heading type="h2">Gift Boxes</Heading>
               </div>
               <Text type="text3" color="secondary">
@@ -138,17 +118,9 @@ export function OrderForm({
             </Flex>
 
             {boxesError && (
-              <VibeBox
-                rounded="medium"
-                style={{
-                  padding: '12px',
-                  backgroundColor: 'var(--primary-background-hover-color)',
-                }}
-              >
-                <Text type="text2" color="negative">
-                  {boxesError}
-                </Text>
-              </VibeBox>
+              <Text type="text2" color="negative">
+                {boxesError}
+              </Text>
             )}
 
             <Flex direction="column" gap="medium">
@@ -169,28 +141,11 @@ export function OrderForm({
             </Flex>
           </Flex>
 
-          <Flex
-            direction="column"
-            align="center"
-            gap="medium"
-            style={{
-              paddingTop: '16px',
-              borderTop: '1px solid var(--ui-border-color)',
-            }}
-          >
+          <Flex direction="column" align="center" gap="medium">
             {submitError && (
-              <VibeBox
-                rounded="medium"
-                style={{
-                  padding: '12px 16px',
-                  backgroundColor: 'var(--primary-background-hover-color)',
-                  textAlign: 'center',
-                }}
-              >
-                <Text type="text2" color="negative">
-                  {submitError}
-                </Text>
-              </VibeBox>
+              <Text type="text2" color="negative">
+                {submitError}
+              </Text>
             )}
             <Button
               type="submit"
