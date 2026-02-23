@@ -1,4 +1,5 @@
 import { GraphQLClient, gql } from 'graphql-request';
+import { mondayApiToken } from './config';
 
 // Column IDs must match the monday.com board configuration.
 // If columns are renamed in the board, update these constants.
@@ -8,10 +9,10 @@ const COLUMN_IDS = {
     FRAGRANCES: 'dropdown_mm0qkhzm',
 } as const;
 
-function getClient(token: string): GraphQLClient {
+function getClient(): GraphQLClient {
     return new GraphQLClient('https://api.monday.com/v2', {
         headers: {
-            Authorization: token,
+            Authorization: mondayApiToken,
             'API-Version': '2023-10',
         },
     });
@@ -20,9 +21,8 @@ function getClient(token: string): GraphQLClient {
 export async function createItem(params: {
     boardId: number;
     itemName: string;
-    token: string;
 }): Promise<string> {
-    const client = getClient(params.token);
+    const client = getClient();
     const mutation = gql`
     mutation ($boardId: ID!, $itemName: String!) {
       create_item(board_id: $boardId, item_name: $itemName) {
@@ -42,9 +42,8 @@ export async function createSubitem(params: {
     boxNumber: number;
     inscription: string;
     fragranceNames: string[];
-    token: string;
 }): Promise<string> {
-    const client = getClient(params.token);
+    const client = getClient();
     const columnValues = JSON.stringify({
         [COLUMN_IDS.INSCRIPTION]: params.inscription,
         [COLUMN_IDS.FRAGRANCES]: { labels: params.fragranceNames.join(', ') },
