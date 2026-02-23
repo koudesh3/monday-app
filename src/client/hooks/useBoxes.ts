@@ -7,7 +7,7 @@ import { useState, useCallback, useMemo } from 'react';
 import type { Fragrance } from '../api/fragrances';
 
 export interface Box {
-  fragrances: [Fragrance | null, Fragrance | null, Fragrance | null];
+  fragrances: Fragrance[];
   inscription: string;
 }
 
@@ -17,16 +17,17 @@ export interface UseBoxesResult {
   removeBox: (index: number) => void;
   updateBox: (index: number, box: Box) => void;
   setSlot: (boxIndex: number, slotIndex: number, fragrance: Fragrance | null) => void;
+  setFragrances: (boxIndex: number, fragrances: Fragrance[]) => void;
   clearFragranceFromAll: (fragranceId: string) => void;
   allComplete: boolean;
 }
 
 /**
- * Create an empty box with 3 null slots and empty inscription
+ * Create an empty box with empty fragrances array and empty inscription
  */
 function createEmptyBox(): Box {
   return {
-    fragrances: [null, null, null],
+    fragrances: [],
     inscription: '',
   };
 }
@@ -55,22 +56,38 @@ export function useBoxes(): UseBoxesResult {
     setBoxes((prev) => prev.map((b, i) => (i === index ? box : b)));
   }, []);
 
-  // Set a fragrance in a specific slot
+  // Set fragrances for a box (replaces all fragrances)
   const setSlot = useCallback(
     (boxIndex: number, slotIndex: number, fragrance: Fragrance | null) => {
+      // slotIndex is ignored now - kept for backward compatibility
+      // fragrance is expected to be null (not used in new implementation)
       setBoxes((prev) => {
         const updated = [...prev];
         const box = updated[boxIndex];
         if (!box) return prev;
 
-        const newFragrances: [Fragrance | null, Fragrance | null, Fragrance | null] = [
-          ...box.fragrances,
-        ] as [Fragrance | null, Fragrance | null, Fragrance | null];
-        newFragrances[slotIndex] = fragrance;
+        updated[boxIndex] = {
+          ...box,
+          fragrances: box.fragrances,
+        };
+
+        return updated;
+      });
+    },
+    []
+  );
+
+  // Set all fragrances for a box at once
+  const setFragrances = useCallback(
+    (boxIndex: number, fragrances: Fragrance[]) => {
+      setBoxes((prev) => {
+        const updated = [...prev];
+        const box = updated[boxIndex];
+        if (!box) return prev;
 
         updated[boxIndex] = {
           ...box,
-          fragrances: newFragrances,
+          fragrances,
         };
 
         return updated;
@@ -84,16 +101,14 @@ export function useBoxes(): UseBoxesResult {
     setBoxes((prev) =>
       prev.map((box) => ({
         ...box,
-        fragrances: box.fragrances.map((f) =>
-          f?.id === fragranceId ? null : f
-        ) as [Fragrance | null, Fragrance | null, Fragrance | null],
+        fragrances: box.fragrances.filter((f) => f.id !== fragranceId),
       }))
     );
   }, []);
 
-  // Derived: all boxes are complete (3 non-null fragrances each)
+  // Derived: all boxes are complete (exactly 3 fragrances each)
   const allComplete = useMemo(() => {
-    return boxes.every((box) => box.fragrances.every((f) => f !== null));
+    return boxes.every((box) => box.fragrances.length === 3);
   }, [boxes]);
 
   return {
@@ -102,6 +117,7 @@ export function useBoxes(): UseBoxesResult {
     removeBox,
     updateBox,
     setSlot,
+    setFragrances,
     clearFragranceFromAll,
     allComplete,
   };
