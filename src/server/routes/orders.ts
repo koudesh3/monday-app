@@ -43,6 +43,9 @@ orders.post('/', async (c) => {
                 createItem({
                     boardId: result.data.boardId,
                     itemName: `${result.data.first_name} ${result.data.last_name}`,
+                    email: result.data.email,
+                    phone: result.data.phone,
+                    shippingAddress: result.data.shipping_address,
                 }),
             { retries: 3 }
         );

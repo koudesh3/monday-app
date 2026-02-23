@@ -38,6 +38,9 @@ export const CreateOrderSchema = z.object({
     boardId: z.number().int().positive(),
     first_name: z.string(),
     last_name: z.string(),
+    email: z.string().email(),
+    phone: z.string(),
+    shipping_address: z.string(),
     boxes: z.array(BoxSchema).min(1).max(100), // note: This is a "reasonable" maximum on order line count
 });
 

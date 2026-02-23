@@ -24,12 +24,18 @@ export interface Box {
 export interface OrderPayload {
   firstName: string;
   lastName: string;
+  email: string;
+  phone: string;
+  shippingAddress: string;
   boxes: Box[];
 }
 
 export interface ValidationErrors {
   firstName?: string;
   lastName?: string;
+  email?: string;
+  phone?: string;
+  shippingAddress?: string;
   boxes?: string;
   boxErrors?: (BoxErrors | null)[];
 }
@@ -53,6 +59,28 @@ export const rules = {
   lastName: (value: string): string | null => {
     if (!value.trim()) return "Required";
     if (value.length > 100) return "Max 100 characters";
+    return null;
+  },
+
+  email: (value: string): string | null => {
+    if (!value.trim()) return "Required";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) return "Invalid email";
+    return null;
+  },
+
+  phone: (value: string): string | null => {
+    if (!value.trim()) return "Required";
+    const phoneRegex = /^[\d\s\-\+\(\)]+$/;
+    if (!phoneRegex.test(value) || value.replace(/\D/g, '').length < 10) {
+      return "Invalid phone number";
+    }
+    return null;
+  },
+
+  shippingAddress: (value: string): string | null => {
+    if (!value.trim()) return "Required";
+    if (value.length > 300) return "Max 300 characters";
     return null;
   },
 
@@ -99,6 +127,18 @@ export function validateOrder(payload: OrderPayload): ValidationErrors | null {
   // Validate last name
   const lnErr = rules.lastName(payload.lastName);
   if (lnErr) errors.lastName = lnErr;
+
+  // Validate email
+  const emailErr = rules.email(payload.email);
+  if (emailErr) errors.email = emailErr;
+
+  // Validate phone
+  const phoneErr = rules.phone(payload.phone);
+  if (phoneErr) errors.phone = phoneErr;
+
+  // Validate shipping address
+  const addressErr = rules.shippingAddress(payload.shippingAddress);
+  if (addressErr) errors.shippingAddress = addressErr;
 
   // Validate at least one box exists
   if (payload.boxes.length === 0) {

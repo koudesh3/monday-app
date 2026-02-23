@@ -20,6 +20,9 @@ export interface OrderPayload {
     boardId: number;
     first_name: string;
     last_name: string;
+    email: string;
+    phone: string;
+    shipping_address: string;
     boxes: OrderBox[];
 }
 
