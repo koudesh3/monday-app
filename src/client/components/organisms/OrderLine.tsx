@@ -1,14 +1,13 @@
 /**
  * OrderLine
- * A single order line (gift box) with 3 fragrance slots and inscription
+ * A single order line (gift box) with 1 multi-select dropdown for 3 fragrances and inscription
  */
 
-import React, { useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useImperativeHandle, forwardRef, useMemo } from 'react';
 import { Heading, Text } from '@vibe/typography';
-import { TextField, Flex, Box as VibeBox } from '@vibe/core';
+import { TextField, Flex, Box as VibeBox, Dropdown } from '@vibe/core';
 import { IconButton } from '@vibe/icon-button';
 import { Delete } from '@vibe/icons';
-import { FragranceSlot } from '../molecules/FragranceSlot';
 import { rules } from '../../validation';
 import type { Fragrance } from '../../api/fragrances';
 import type { Box } from '../../hooks/useBoxes';
@@ -17,7 +16,7 @@ export interface OrderLineProps {
   box: Box;
   boxNumber: number;
   availableFragrances: Fragrance[];
-  onSlotChange: (slotIndex: number, fragrance: Fragrance | null) => void;
+  onFragrancesChange: (fragrances: Fragrance[]) => void;
   onInscriptionChange: (inscription: string) => void;
   onRemove?: () => void;
   slotsError?: string | null;
@@ -30,7 +29,7 @@ export interface OrderLineRef {
 
 /**
  * Order line component (gift box configuration).
- * - 3 fragrance slots (prevents duplicates within the box)
+ * - 1 multi-select dropdown for selecting exactly 3 unique fragrances
  * - Inscription field with blur-based sync to parent
  * - Exposes inscription via ref for submission-time reading
  */
@@ -40,7 +39,7 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
       box,
       boxNumber,
       availableFragrances,
-      onSlotChange,
+      onFragrancesChange,
       onInscriptionChange,
       onRemove,
       slotsError,
@@ -66,24 +65,47 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
       onInscriptionChange(localInscription);
     };
 
-    // Track which fragrances are already used in this box
-    const usedIds = new Set(box.fragrances.filter(Boolean).map((f) => f!.id));
+    // Dropdown options
+    const options = useMemo(
+      () =>
+        availableFragrances.map((f) => ({
+          value: f.id,
+          label: f.name,
+        })),
+      [availableFragrances]
+    );
 
-    // Count filled slots
-    const filledCount = box.fragrances.filter(Boolean).length;
+    // Selected values for dropdown
+    const selectedValues = useMemo(
+      () => box.fragrances.map((f) => ({ value: f.id, label: f.name })),
+      [box.fragrances]
+    );
+
+    // Handle fragrance selection change
+    const handleFragranceChange = (selected: Array<{ value: string; label: string }>) => {
+      // Limit to 3 selections with uniqueness enforced by Set
+      const uniqueIds = Array.from(new Set(selected.map((s) => s.value))).slice(0, 3);
+      const selectedFragrances = uniqueIds
+        .map((id) => availableFragrances.find((f) => f.id === id))
+        .filter((f): f is Fragrance => f !== undefined);
+
+      onFragrancesChange(selectedFragrances);
+    };
+
+    // Count filled fragrances
+    const filledCount = box.fragrances.length;
     const isComplete = filledCount === 3;
 
     return (
       <VibeBox border rounded="medium" backgroundColor="primaryBackgroundColor" padding="medium" style={{ width: '100%', position: 'relative' }}>
         {onRemove && (
-          <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 10 }}>
+          <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 10, color: 'var(--negative-color, #D83A52)' }}>
             <IconButton
               icon={Delete}
               size="small"
               kind="tertiary"
               ariaLabel={`Remove box ${boxNumber}`}
               onClick={onRemove}
-              style={{ color: 'var(--negative-color, #D83A52)' }}
             />
           </div>
         )}
@@ -99,19 +121,15 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
         </VibeBox>
 
         <VibeBox marginBottom="medium" style={{ width: '100%' }}>
-          <Flex direction="row" gap="medium" style={{ width: '100%' }}>
-            {box.fragrances.map((fragrance, slotIndex) => (
-              <FragranceSlot
-                key={slotIndex}
-                fragrance={fragrance}
-                availableFragrances={availableFragrances}
-                usedIds={usedIds}
-                onSelect={(f) => onSlotChange(slotIndex, f)}
-                onRemove={() => onSlotChange(slotIndex, null)}
-                slotNumber={slotIndex + 1}
-              />
-            ))}
-          </Flex>
+          <Dropdown
+            placeholder="Select 3 fragrances"
+            value={selectedValues}
+            options={options}
+            onChange={handleFragranceChange}
+            multi
+            multiline
+            size="medium"
+          />
         </VibeBox>
 
         {slotsError && (
