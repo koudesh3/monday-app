@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { rules, validateOrder } from '../src/client/validation';
-import type { OrderPayload } from '../src/client/validation';
+import { rules, validateOrder } from '../../src/client/validation';
+import type { OrderPayload } from '../../src/client/validation';
 
 describe('validation rules', () => {
   describe('firstName', () => {

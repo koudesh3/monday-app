@@ -7,10 +7,10 @@ const mockUpdateItemDate = vi.fn();
 
 vi.mock('@mondaycom/apps-sdk', () => ({
     Logger: class {
-        info() {}
-        error() {}
-        warn() {}
-        debug() {}
+        info() { }
+        error() { }
+        warn() { }
+        debug() { }
     },
     EnvironmentVariablesManager: class {
         get(key: string) {
@@ -31,7 +31,7 @@ vi.mock('@mondaycom/apps-sdk', () => ({
     },
 }));
 
-vi.mock('../src/server/mondayClient', () => ({
+vi.mock('../../src/server/mondayClient', () => ({
     createItem: vi.fn(),
     createSubitem: vi.fn(),
     getSubitemsWithStatus: (...args: any[]) => mockGetSubitemsWithStatus(...args),
@@ -53,7 +53,7 @@ vi.mock('../src/server/mondayClient', () => ({
     },
 }));
 
-import { app } from '../src/server/server';
+import { app } from '../../src/server/server';
 
 describe('Webhook API', () => {
     beforeEach(() => {

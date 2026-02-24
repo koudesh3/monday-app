@@ -35,12 +35,15 @@ vi.mock('@mondaycom/apps-sdk', () => ({
     },
 }));
 
-vi.mock('../src/server/mondayClient', () => ({
-    createItem: vi.fn(),
-    createSubitem: vi.fn(),
+const mockCreateItem = vi.fn();
+const mockCreateSubitem = vi.fn();
+
+vi.mock('../../src/server/mondayClient', () => ({
+    createItem: (...args: any[]) => mockCreateItem(...args),
+    createSubitem: (...args: any[]) => mockCreateSubitem(...args),
 }));
 
-import { app } from '../src/server/server';
+import { app } from '../../src/server/server';
 
 function authHeader() {
     return { Authorization: `Bearer ${TEST_TOKEN}` };
@@ -78,6 +81,8 @@ describe('Order API', () => {
             makeFragrance('f3', 'Vanilla'),
             makeFragrance('f4', 'Sandalwood'),
         ];
+        mockCreateItem.mockReset();
+        mockCreateSubitem.mockReset();
     });
 
     it('invalid body returns 422', async () => {
@@ -132,4 +137,77 @@ describe('Order API', () => {
         // Assert
         expect(res.status).toBe(401);
     });
+
+    it('creates order with item and subitems and returns 201', async () => {
+        // Arrange
+        mockCreateItem.mockResolvedValue('item-123');
+        mockCreateSubitem.mockResolvedValue('subitem-456');
+        const validBody = {
+            ...validOrderBase(),
+            boxes: [
+                { inscription: 'Happy Birthday!', fragrance_ids: ['f1', 'f2', 'f3'] },
+                { inscription: 'For Mom', fragrance_ids: ['f2', 'f3', 'f4'] },
+            ],
+        };
+
+        // Act
+        const res = await app.request('/api/orders', {
+            method: 'POST',
+            headers: { ...authHeader(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(validBody),
+        });
+
+        // Assert
+        expect(res.status).toBe(201);
+        const body = await res.json();
+        expect(body.orderId).toMatch(/^ORD-[a-z0-9]{8}$/);
+        expect(body.itemId).toBe('item-123');
+        expect(body.subitemIds).toHaveLength(2);
+        expect(mockCreateItem).toHaveBeenCalledTimes(1);
+        expect(mockCreateSubitem).toHaveBeenCalledTimes(2);
+    });
+
+    it('returns 500 when item creation fails after retries', async () => {
+        // Arrange
+        mockCreateItem.mockRejectedValue(new Error('Monday API error'));
+        const validBody = {
+            ...validOrderBase(),
+            boxes: [{ inscription: 'Gift', fragrance_ids: ['f1', 'f2', 'f3'] }],
+        };
+
+        // Act
+        const res = await app.request('/api/orders', {
+            method: 'POST',
+            headers: { ...authHeader(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(validBody),
+        });
+
+        // Assert
+        expect(res.status).toBe(500);
+        const body = await res.json();
+        expect(body.error).toBe('Failed to create order item after retries');
+    }, 15000);
+
+    it('returns 500 when subitem creation fails after retries', async () => {
+        // Arrange
+        mockCreateItem.mockResolvedValue('item-123');
+        mockCreateSubitem.mockRejectedValue(new Error('Monday API error'));
+        const validBody = {
+            ...validOrderBase(),
+            boxes: [{ inscription: 'Gift', fragrance_ids: ['f1', 'f2', 'f3'] }],
+        };
+
+        // Act
+        const res = await app.request('/api/orders', {
+            method: 'POST',
+            headers: { ...authHeader(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(validBody),
+        });
+
+        // Assert
+        expect(res.status).toBe(500);
+        const body = await res.json();
+        expect(body.error).toBe('Failed to create subitems after retries');
+        expect(body.itemId).toBe('item-123');
+    }, 15000);
 });
