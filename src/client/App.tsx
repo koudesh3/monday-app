@@ -9,7 +9,7 @@ import { Toast, Flex } from '@vibe/core';
 import { Heading, Text } from '@vibe/typography';
 import { useMondayContext } from './hooks/useMondayContext';
 import { useFragrances } from './hooks/useFragrances';
-import { useBoxes } from './hooks/useBoxes';
+import { useOrderLines } from './hooks/useOrderLines';
 import { useOrder } from './hooks/useOrder';
 import { validateOrder } from './validation';
 import { OrderForm } from './components/organisms/OrderForm';
@@ -24,7 +24,7 @@ export default function App() {
 
   // Domain state
   const { fragrances, loading: fragrancesLoading, add, update, remove } = useFragrances(ready);
-  const { boxes, addBox, removeBox, setFragrances, clearFragranceFromAll, allComplete } = useBoxes();
+  const { boxes, addBox, removeBox, setFragrances, clearFragranceFromAll, allComplete } = useOrderLines();
   const { submitting, submitted, error: submitError, response, submit, reset } = useOrder();
 
   // Form state
@@ -160,7 +160,7 @@ export default function App() {
     setPhone('');
     setShippingAddress('');
     setValidationErrors(null);
-    // useBoxes will maintain its state, but we could reset it if needed
+    // useOrderLines will maintain its state, but we could reset it if needed
   }, [reset]);
 
   // Show submission error toast
@@ -233,6 +233,7 @@ export default function App() {
       {/* Main content: Order form or success screen */}
       {submitted && response ? (
         <OrderConfirmation
+          orderId={response.orderId}
           boxCount={boxes.length}
           itemId={response.itemId}
           onNewOrder={handleNewOrder}
