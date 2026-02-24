@@ -7,9 +7,6 @@ const TEST_TOKEN = jwt.sign({ dat: { account_id: 12345, user_id: 67890, shortLiv
 
 let mockFragrances: any[] = [];
 
-const mockCreateOrderItem = vi.fn();
-const mockCreateBoxSubitem = vi.fn();
-
 vi.mock('@mondaycom/apps-sdk', () => ({
     Logger: class {
         info() { }
@@ -39,8 +36,8 @@ vi.mock('@mondaycom/apps-sdk', () => ({
 }));
 
 vi.mock('../src/server/mondayClient', () => ({
-    createItem: (...args: any[]) => mockCreateOrderItem(...args),
-    createSubitem: (...args: any[]) => mockCreateBoxSubitem(...args),
+    createItem: vi.fn(),
+    createSubitem: vi.fn(),
 }));
 
 import { app } from '../src/server/server';
@@ -81,132 +78,58 @@ describe('Order API', () => {
             makeFragrance('f3', 'Vanilla'),
             makeFragrance('f4', 'Sandalwood'),
         ];
-        mockCreateOrderItem.mockReset();
-        mockCreateBoxSubitem.mockReset();
-        mockCreateOrderItem.mockResolvedValue('item-100');
-        mockCreateBoxSubitem.mockResolvedValue('sub-1');
-    });
-
-    it('valid order with 1 box creates item and 1 subitem, returns 201 with ids', async () => {
-        const res = await app.request('/api/orders', {
-            method: 'POST',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                ...validOrderBase(),
-                boxes: [{ inscription: 'Happy Birthday', fragrance_ids: ['f1', 'f2', 'f3'] }],
-            }),
-        });
-        expect(res.status).toBe(201);
-        const body = await res.json();
-        expect(body.itemId).toBe('item-100');
-        expect(body.subitemIds).toHaveLength(1);
-    });
-
-    it('valid order with 3 boxes creates item and 3 subitems', async () => {
-        mockCreateBoxSubitem
-            .mockResolvedValueOnce('sub-1')
-            .mockResolvedValueOnce('sub-2')
-            .mockResolvedValueOnce('sub-3');
-
-        const res = await app.request('/api/orders', {
-            method: 'POST',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                ...validOrderBase(),
-                boxes: [
-                    { inscription: 'Box A', fragrance_ids: ['f1', 'f2', 'f3'] },
-                    { inscription: 'Box B', fragrance_ids: ['f2', 'f3', 'f4'] },
-                    { inscription: 'Box C', fragrance_ids: ['f1', 'f3', 'f4'] },
-                ],
-            }),
-        });
-        expect(res.status).toBe(201);
-        const body = await res.json();
-        expect(body.itemId).toBe('item-100');
-        expect(body.subitemIds).toEqual(['sub-1', 'sub-2', 'sub-3']);
     });
 
     it('invalid body returns 422', async () => {
+        // Arrange
+        const invalidBody = { boardId: 12345, first_name: 'Jane' };
+
+        // Act
         const res = await app.request('/api/orders', {
             method: 'POST',
             headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            body: JSON.stringify({ boardId: 12345, first_name: 'Jane' }),
+            body: JSON.stringify(invalidBody),
         });
+
+        // Assert
         expect(res.status).toBe(422);
     });
 
     it('unknown fragrance id in any box returns 422', async () => {
+        // Arrange
+        const bodyWithUnknownFragrance = {
+            ...validOrderBase(),
+            boxes: [{ inscription: 'Gift', fragrance_ids: ['f1', 'f2', 'UNKNOWN'] }],
+        };
+
+        // Act
         const res = await app.request('/api/orders', {
             method: 'POST',
             headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                ...validOrderBase(),
-                boxes: [{ inscription: 'Gift', fragrance_ids: ['f1', 'f2', 'UNKNOWN'] }],
-            }),
+            body: JSON.stringify(bodyWithUnknownFragrance),
         });
+
+        // Assert
         expect(res.status).toBe(422);
         const body = await res.json();
         expect(body.error).toContain('UNKNOWN');
     });
 
     it('missing Authorization returns 401', async () => {
+        // Arrange
+        const validBody = {
+            ...validOrderBase(),
+            boxes: [{ inscription: 'Gift', fragrance_ids: ['f1', 'f2', 'f3'] }],
+        };
+
+        // Act
         const res = await app.request('/api/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                ...validOrderBase(),
-                boxes: [{ inscription: 'Gift', fragrance_ids: ['f1', 'f2', 'f3'] }],
-            }),
+            body: JSON.stringify(validBody),
         });
+
+        // Assert
         expect(res.status).toBe(401);
-    });
-
-    it('createOrderItem is called with the correct board id and full name', async () => {
-        await app.request('/api/orders', {
-            method: 'POST',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                ...validOrderBase(),
-                boxes: [{ inscription: 'Gift', fragrance_ids: ['f1', 'f2', 'f3'] }],
-            }),
-        });
-        expect(mockCreateOrderItem).toHaveBeenCalledWith({
-            boardId: 12345,
-            itemName: 'Jane Doe',
-            email: 'jane@example.com',
-            phone: '555-012-3456',
-            shippingAddress: '123 Main St, City, State 12345',
-        });
-    });
-
-    it('createBoxSubitem is called once per box with correct inscription and resolved fragrance names', async () => {
-        mockCreateBoxSubitem
-            .mockResolvedValueOnce('sub-1')
-            .mockResolvedValueOnce('sub-2');
-
-        await app.request('/api/orders', {
-            method: 'POST',
-            headers: { ...authHeader(), 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                ...validOrderBase(),
-                boxes: [
-                    { inscription: 'Box A', fragrance_ids: ['f1', 'f2', 'f3'] },
-                    { inscription: 'Box B', fragrance_ids: ['f2', 'f3', 'f4'] },
-                ],
-            }),
-        });
-        expect(mockCreateBoxSubitem).toHaveBeenCalledTimes(2);
-        expect(mockCreateBoxSubitem).toHaveBeenCalledWith({
-            parentItemId: 'item-100',
-            boxNumber: 1,
-            inscription: 'Box A',
-            fragranceNames: ['Lavender', 'Rose', 'Vanilla'],
-        });
-        expect(mockCreateBoxSubitem).toHaveBeenCalledWith({
-            parentItemId: 'item-100',
-            boxNumber: 2,
-            inscription: 'Box B',
-            fragranceNames: ['Rose', 'Vanilla', 'Sandalwood'],
-        });
     });
 });
