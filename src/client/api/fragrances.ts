@@ -13,7 +13,7 @@ export interface Fragrance {
     name: string;
     description: string;
     category: string;
-    image_url: string;
+    image_url?: string;
     recipe: string;
     created_at: string;
     updated_at: string;

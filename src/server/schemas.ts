@@ -1,5 +1,13 @@
+/**
+ * Validation schemas
+ * Zod schemas for request/response validation and type inference
+ */
+
 import { z } from 'zod';
 
+/**
+ * JWT session user payload
+ */
 export const SessionUserSchema = z.object({
     dat: z.object({
         account_id: z.number(),
@@ -7,23 +15,32 @@ export const SessionUserSchema = z.object({
     }),
 });
 
+/**
+ * Fragrance data structure
+ */
 export const FragranceSchema = z.object({
     id: z.string(),
     name: z.string(),
     description: z.string(),
     category: z.string(),
-    image_url: z.string().url(),
+    image_url: z.string().url().optional(),
     recipe: z.string(),
     created_at: z.string().datetime(),
     updated_at: z.string().datetime(),
 });
 
+/**
+ * Fragrance creation payload (omits id and timestamps)
+ */
 export const CreateFragranceSchema = FragranceSchema.omit({
     id: true,
     created_at: true,
     updated_at: true,
 });
 
+/**
+ * Box data in order (inscription + 3 unique fragrances)
+ */
 export const BoxSchema = z.object({
     inscription: z.string(),
     fragrance_ids: z
@@ -34,6 +51,9 @@ export const BoxSchema = z.object({
         }),
 });
 
+/**
+ * Order creation payload
+ */
 export const CreateOrderSchema = z.object({
     boardId: z.number().int().positive(),
     first_name: z.string(),
@@ -41,10 +61,13 @@ export const CreateOrderSchema = z.object({
     email: z.string().email(),
     phone: z.string(),
     shipping_address: z.string(),
-    boxes: z.array(BoxSchema).min(1).max(100), // note: This is a "reasonable" maximum on order line count
+    boxes: z.array(BoxSchema).min(1).max(100), // note: This is my "reasonable" maximum on order line count
 });
 
-// Monday.com webhook payload for column_change events
+/**
+ * Webhook event payload from Monday.com
+ * note: This is for "column_change" webhook events
+ */
 export const WebhookPayloadSchema = z.object({
     challenge: z.string().optional(),
     event: z.object({
@@ -61,7 +84,7 @@ export const WebhookPayloadSchema = z.object({
         previousValue: z.any().optional(),
         type: z.string(),
         parentItemId: z.string(),
-        parentItemBoardId: z.number(), // Monday sends this as a number, not string
+        parentItemBoardId: z.number(),
     }).optional(),
 });
 
