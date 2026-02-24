@@ -1,75 +1,67 @@
 import { Hono } from 'hono';
-import { getSubitemsWithStatus, updateItemStatus } from '../mondayClient';
+import { Logger } from '@mondaycom/apps-sdk';
+import { getSubitemsWithStatus, updateItemStatus, updateItemDate, getItemStatus, COLUMN_IDS } from '../mondayClient';
+import { WebhookPayloadSchema } from '../schemas';
 
 const webhook = new Hono();
+const logger = new Logger('webhook');
 
-const SUBITEM_STATUS_COLUMN_ID = 'color_mm0qcgc2';
-const PARENT_STATUS_COLUMN_ID = 'status';
-
-type WebhookPayload = {
-    challenge?: string;
-    event?: {
-        boardId: number;
-        pulseId: number;
-        columnId: string;
-        columnType: string;
-        value: {
-            label: {
-                index: number;
-                text: string;
-            };
-        };
-        previousValue?: any;
-        type: string;
-        parentItemId: string;
-        parentItemBoardId: string;
-    };
-};
+const STATUS_PRIORITY: Array<string | null> = [
+    null,           // unset → treat as Not Started
+    'Not Started',
+    'Backordered',
+    'In Progress',
+];
 
 function computeRolledUpStatus(subitemStatuses: Array<string | null>): string {
-    // Priority: "Not Started" > "Backordered" > "In Progress" > "Shipped"
-    const hasNotStarted = subitemStatuses.some((status) => status === 'Not Started');
-    if (hasNotStarted) {
-        return 'Not Started';
+    for (const status of STATUS_PRIORITY) {
+        if (subitemStatuses.includes(status)) {
+            return status === null ? 'Not Started' : status;
+        }
     }
 
-    const hasBackordered = subitemStatuses.some((status) => status === 'Backordered');
-    if (hasBackordered) {
-        return 'Backordered';
+    if (subitemStatuses.every((s) => s === 'Shipped')) {
+        return 'Shipped';
     }
 
-    const hasInProgress = subitemStatuses.some((status) => status === 'In Progress');
-    if (hasInProgress) {
-        return 'In Progress';
-    }
-
-    // All subitems are "Shipped"
-    return 'Shipped';
+    logger.warn(`[webhook] Unknown status encountered: ${JSON.stringify(subitemStatuses)}`);
+    return 'In Progress';
 }
 
 webhook.post('/', async (c) => {
-    const body = (await c.req.json()) as WebhookPayload;
-
-    // Handle challenge handshake
-    if (body.challenge) {
-        return c.json({ challenge: body.challenge });
+    const body = await c.req.json();
+    const result = WebhookPayloadSchema.safeParse(body);
+    if (!result.success) {
+        logger.error(`[webhook] Invalid payload: ${JSON.stringify({ error: result.error.issues, body })}`);
+        return c.json({ error: result.error.issues }, 422);
     }
 
-    const event = body.event;
+    // Handle challenge handshake
+    if (result.data.challenge) {
+        return c.json({ challenge: result.data.challenge });
+    }
+
+    const event = result.data.event;
     if (!event) {
         return c.json({ ok: true });
     }
 
     // Only process status column changes
-    if (event.columnId !== SUBITEM_STATUS_COLUMN_ID) {
+    if (event.columnId !== COLUMN_IDS.SUBITEM_STATUS) {
         return c.json({ ok: true });
     }
 
     try {
+        // Get current parent item status
+        const currentStatus = await getItemStatus({
+            itemId: event.parentItemId,
+            statusColumnId: COLUMN_IDS.PARENT_STATUS,
+        });
+
         // Get all subitems with their statuses
         const subitems = await getSubitemsWithStatus({
             parentItemId: event.parentItemId,
-            statusColumnId: SUBITEM_STATUS_COLUMN_ID,
+            statusColumnId: COLUMN_IDS.SUBITEM_STATUS,
         });
 
         // Compute rolled-up status
@@ -78,15 +70,42 @@ webhook.post('/', async (c) => {
 
         // Update parent item status
         await updateItemStatus({
-            boardId: String(event.parentItemBoardId),
+            boardId: event.parentItemBoardId.toString(),
             itemId: event.parentItemId,
-            statusColumnId: PARENT_STATUS_COLUMN_ID,
+            statusColumnId: COLUMN_IDS.PARENT_STATUS,
             statusLabel: rolledUpStatus,
         });
 
+        // If transitioning to "Shipped", set the Order Complete Date
+        if (rolledUpStatus === 'Shipped' && currentStatus !== 'Shipped') {
+            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+            try {
+                await updateItemDate({
+                    boardId: event.parentItemBoardId.toString(),
+                    itemId: event.parentItemId,
+                    dateColumnId: COLUMN_IDS.ORDER_COMPLETE_DATE,
+                    date: today,
+                });
+            } catch (dateErr: any) {
+                logger.error(`[webhook] failed to set order complete date: ${JSON.stringify({
+                    parentItemId: event.parentItemId,
+                    date: today,
+                    error: dateErr.message,
+                    response: dateErr.response,
+                    stack: dateErr.stack,
+                })}`);
+                // Don't throw - we still want to return success for the status update
+            }
+        }
+
         return c.json({ ok: true });
-    } catch (err) {
-        console.error('[webhook] Failed to process status rollup', { event, err });
+    } catch (err: any) {
+        logger.error(`[webhook] Failed to process status rollup: ${JSON.stringify({
+            event,
+            error: err.message,
+            response: err.response,
+            stack: err.stack,
+        })}`);
         return c.json({ error: 'Failed to process webhook' }, 500);
     }
 });
