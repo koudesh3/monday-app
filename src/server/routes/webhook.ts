@@ -1,3 +1,8 @@
+/**
+ * Webhook routes
+ * Handles Monday.com column_change events for status rollup
+ */
+
 import { Hono } from 'hono';
 import { Logger } from '@mondaycom/apps-sdk';
 import { getSubitemsWithStatus, updateItemStatus, updateItemDate, getItemStatus, COLUMN_IDS } from '../mondayClient';
@@ -6,13 +11,20 @@ import { WebhookPayloadSchema } from '../schemas';
 const webhook = new Hono();
 const logger = new Logger('webhook');
 
+/**
+ * Status priority for rollup logic (lower index = higher priority)
+ */
 const STATUS_PRIORITY: Array<string | null> = [
-    null,           // unset → treat as Not Started
+    null,           // "unset" status
     'Not Started',
     'Backordered',
     'In Progress',
 ];
 
+/**
+ * Computes parent item status based on subitem statuses
+ * Returns the highest priority status, or "Shipped" if all are shipped
+ */
 function computeRolledUpStatus(subitemStatuses: Array<string | null>): string {
     for (const status of STATUS_PRIORITY) {
         if (subitemStatuses.includes(status)) {
@@ -28,6 +40,10 @@ function computeRolledUpStatus(subitemStatuses: Array<string | null>): string {
     return 'In Progress';
 }
 
+/**
+ * POST /webhook - Processes column_change events from Monday.com
+ * Rolls up subitem statuses to parent item status
+ */
 webhook.post('/', async (c) => {
     const body = await c.req.json();
     const result = WebhookPayloadSchema.safeParse(body);

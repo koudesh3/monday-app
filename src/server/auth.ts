@@ -1,9 +1,17 @@
+/**
+ * Authentication middleware
+ * Verifies JWT tokens and extracts user session data
+ */
+
 import jwt from 'jsonwebtoken';
 import { Context, Next } from 'hono';
 import { SessionUserSchema } from './schemas';
 import { Env } from './types';
 import { clientSecret } from './config';
 
+/**
+ * Validates JWT bearer tokens and sets user context
+ */
 export async function authMiddleware(c: Context<Env>, next: Next) {
     const authHeader = c.req.header('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -13,17 +21,7 @@ export async function authMiddleware(c: Context<Env>, next: Next) {
     const token = authHeader.slice(7); // After "Bearer "
 
     try {
-        // Temporary logger
-        const parts = token.split('.');
-        if (parts.length === 3) {
-            const header = JSON.parse(Buffer.from(parts[0], 'base64').toString());
-            const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-            console.log('JWT header:', JSON.stringify(header));
-            console.log('JWT payload (unverified):', JSON.stringify(payload));
-        }
-
         const decoded = jwt.verify(token, clientSecret);
-        console.log('decoded JWT payload:', JSON.stringify(decoded));
         const result = SessionUserSchema.safeParse(decoded);
 
         if (!result.success) {

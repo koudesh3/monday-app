@@ -1,3 +1,8 @@
+/**
+ * Server configuration
+ * Loads and validates environment variables
+ */
+
 import dotenv from 'dotenv';
 
 dotenv.config();

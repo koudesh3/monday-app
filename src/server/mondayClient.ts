@@ -1,12 +1,19 @@
+/**
+ * Monday.com GraphQL client
+ * Handles board item/subitem creation and updates
+ */
+
 import { GraphQLClient, gql } from 'graphql-request';
 import { Logger } from '@mondaycom/apps-sdk';
 import { mondayApiToken } from './config';
 
 const logger = new Logger('mondayClient');
 
-// Column IDs must match the monday.com board configuration.
-// If columns are renamed in the board, update these constants.
-// FIX: This is a wrong mental model; If we're installing the board WITH the app, then these are generated on demand. We can't do a new deploy per installation
+/**
+ * Board column IDs
+ * note: Column IDs must match the monday.com board configuration. If columns are renamed in the board, update these constants.
+ * TODO: To make this production-ready for the Monday marketplace, we should generate the board on install, and maintain a map of cols per tenant.
+ */
 export const COLUMN_IDS = {
     EMAIL: 'email',
     PHONE: 'phone',
@@ -21,6 +28,9 @@ export const COLUMN_IDS = {
     ORDER_COMPLETE_DATE: 'date_13',
 } as const;
 
+/**
+ * Creates a GraphQL client with Monday API token
+ */
 function getClient(): GraphQLClient {
     return new GraphQLClient('https://api.monday.com/v2', {
         headers: {
@@ -30,6 +40,9 @@ function getClient(): GraphQLClient {
     });
 }
 
+/**
+ * Creates a parent item on a board (represents an order)
+ */
 export async function createItem(params: {
     boardId: number;
     itemName: string;
@@ -91,6 +104,9 @@ export async function createItem(params: {
     }
 }
 
+/**
+ * Creates a subitem under a parent item (represents a box in an order)
+ */
 export async function createSubitem(params: {
     parentItemId: string;
     orderLineNumber: number;
@@ -140,6 +156,9 @@ export async function createSubitem(params: {
     }
 }
 
+/**
+ * Retrieves all subitems with their status values
+ */
 export async function getSubitemsWithStatus(params: {
     parentItemId: string;
     statusColumnId: string;
@@ -179,6 +198,9 @@ export async function getSubitemsWithStatus(params: {
     });
 }
 
+/**
+ * Gets the status value for an item
+ */
 export async function getItemStatus(params: {
     itemId: string;
     statusColumnId: string;
@@ -206,6 +228,9 @@ export async function getItemStatus(params: {
     return statusColumn?.text || null;
 }
 
+/**
+ * Updates the status column value for an item
+ */
 export async function updateItemStatus(params: {
     boardId: string;
     itemId: string;
@@ -228,6 +253,9 @@ export async function updateItemStatus(params: {
     });
 }
 
+/**
+ * Updates a date column value for an item
+ */
 export async function updateItemDate(params: {
     boardId: string;
     itemId: string;
@@ -265,4 +293,3 @@ export async function updateItemDate(params: {
         throw err;
     }
 }
-
