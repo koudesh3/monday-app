@@ -37,7 +37,12 @@ fragrances.get('/', async (c) => {
 
 fragrances.post('/', async (c) => {
     const accountId = c.get('accountId');
-    const body = await c.req.json();
+    let body: unknown;
+    try {
+        body = await c.req.json();
+    } catch (err) {
+        return c.json({ error: 'Invalid JSON' }, 400);
+    }
     const result = CreateFragranceSchema.safeParse(body);
     if (!result.success) {
         return c.json({ error: result.error.issues }, 422);
@@ -62,7 +67,12 @@ fragrances.post('/', async (c) => {
 fragrances.put('/:id', async (c) => {
     const accountId = c.get('accountId');
     const id = c.req.param('id');
-    const body = await c.req.json();
+    let body: unknown;
+    try {
+        body = await c.req.json();
+    } catch (err) {
+        return c.json({ error: 'Invalid JSON' }, 400);
+    }
     const result = CreateFragranceSchema.safeParse(body);
     if (!result.success) {
         return c.json({ error: result.error.issues }, 422);
