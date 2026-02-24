@@ -44,8 +44,30 @@ export const CreateOrderSchema = z.object({
     boxes: z.array(BoxSchema).min(1).max(100), // note: This is a "reasonable" maximum on order line count
 });
 
+// Monday.com webhook payload for column_change events
+export const WebhookPayloadSchema = z.object({
+    challenge: z.string().optional(),
+    event: z.object({
+        boardId: z.number(),
+        pulseId: z.number(),
+        columnId: z.string(),
+        columnType: z.string(),
+        value: z.object({
+            label: z.object({
+                index: z.number(),
+                text: z.string(),
+            }),
+        }),
+        previousValue: z.any().optional(),
+        type: z.string(),
+        parentItemId: z.string(),
+        parentItemBoardId: z.number(), // Monday sends this as a number, not string
+    }).optional(),
+});
+
 export type SessionUser = z.infer<typeof SessionUserSchema>;
 export type Fragrance = z.infer<typeof FragranceSchema>;
 export type CreateFragrance = z.infer<typeof CreateFragranceSchema>;
 export type Box = z.infer<typeof BoxSchema>;
 export type CreateOrder = z.infer<typeof CreateOrderSchema>;
+export type WebhookPayload = z.infer<typeof WebhookPayloadSchema>;
