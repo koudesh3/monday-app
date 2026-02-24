@@ -83,8 +83,11 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
 
     // Handle fragrance selection change
     const handleFragranceChange = (selected: Array<{ value: string; label: string }>) => {
-      // Limit to 3 selections with uniqueness enforced by Set
-      const uniqueIds = Array.from(new Set(selected.map((s) => s.value))).slice(0, 3);
+      // Limit to maximum 3 selections
+      const limitedSelection = selected.slice(0, 3);
+
+      // Ensure uniqueness with Set
+      const uniqueIds = Array.from(new Set(limitedSelection.map((s) => s.value)));
       const selectedFragrances = uniqueIds
         .map((id) => availableFragrances.find((f) => f.id === id))
         .filter((f): f is Fragrance => f !== undefined);
@@ -120,7 +123,7 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
           </Flex>
         </VibeBox>
 
-        <VibeBox marginBottom="medium" style={{ width: '100%' }}>
+        <div style={{ width: '100%', marginBottom: '66px', position: 'relative', zIndex: 100 }}>
           <Dropdown
             placeholder="Select 3 fragrances"
             value={selectedValues}
@@ -129,8 +132,11 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
             multi
             multiline
             size="medium"
+            menuPortalTarget={typeof document !== 'undefined' ? document.body : undefined}
+            insideOverflowContainer
+            isOptionDisabled={() => selectedValues.length >= 3}
           />
-        </VibeBox>
+        </div>
 
         {slotsError && (
           <VibeBox marginBottom="small">
