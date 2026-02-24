@@ -30,6 +30,7 @@ export interface OrderPayload {
  * Order submission response
  */
 export interface OrderResponse {
+    orderId: string;
     itemId: string;
     subitemIds: string[];
 }

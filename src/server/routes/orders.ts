@@ -1,3 +1,8 @@
+/**
+ * Orders API routes
+ * Handles production order submission to Monday.com
+ */
+
 import retry from 'async-retry';
 import { Hono } from 'hono';
 import { Logger } from '@mondaycom/apps-sdk';
@@ -15,12 +20,19 @@ const orders = new Hono<Env>();
 
 orders.use('*', authMiddleware);
 
+/**
+ * Sets accountId from authenticated user
+ */
 orders.use('*', async (c, next) => {
     const user = c.get('user');
     c.set('accountId', String(user.dat.account_id));
     await next();
 });
 
+/**
+ * POST /api/orders - Submit a production order
+ * Creates a Monday item with subitems for each box
+ */
 orders.post('/', async (c) => {
     const accountId = c.get('accountId');
     const body = await c.req.json();
@@ -134,7 +146,7 @@ orders.post('/', async (c) => {
                 )
             )
         );
-        return c.json({ itemId, subitemIds }, 201);
+        return c.json({ orderId: orderNumber, itemId, subitemIds }, 201);
     } catch (err: any) {
         logger.error(`[orders] subitem creation failed after retries: ${JSON.stringify({
             itemId,
