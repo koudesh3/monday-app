@@ -84,7 +84,7 @@ export const WebhookPayloadSchema = z.object({
         previousValue: z.any().optional(),
         type: z.string(),
         parentItemId: z.string(),
-        parentItemBoardId: z.number(),
+        parentItemBoardId: z.string(),
     }).optional(),
 });
 
