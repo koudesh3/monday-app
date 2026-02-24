@@ -16,7 +16,7 @@ export interface Fragrance {
   imageUrl?: string;
 }
 
-export interface Box {
+export interface OrderLine {
   fragrances: Fragrance[];
   inscription: string;
 }
@@ -27,7 +27,7 @@ export interface OrderPayload {
   email: string;
   phone: string;
   shippingAddress: string;
-  boxes: Box[];
+  boxes: OrderLine[];
 }
 
 export interface ValidationErrors {
@@ -100,14 +100,20 @@ export const rules = {
     return null;
   },
 
-  imageUrl: (value: string): string | null => {
-    if (!value.trim()) return "Required";
+  imageUrl: (value: string | undefined): string | null => {
+    if (!value || !value.trim()) return null; // Optional field
     try {
       new URL(value);
       return null;
     } catch {
       return "Invalid URL";
     }
+  },
+
+  category: (value: string): string | null => {
+    if (!value.trim()) return "Required";
+    if (value.length > 50) return "Max 50 characters";
+    return null;
   },
 };
 
@@ -146,24 +152,24 @@ export function validateOrder(payload: OrderPayload): ValidationErrors | null {
   }
 
   // Validate each box
-  const boxErrors = payload.boxes.map((box): BoxErrors | null => {
+  const boxErrors = payload.boxes.map((line): BoxErrors | null => {
     const be: BoxErrors = {};
 
     // Check exactly 3 unique fragrances are selected
-    if (box.fragrances.length < 3) {
+    if (line.fragrances.length < 3) {
       be.slots = "All 3 fragrances required";
-    } else if (box.fragrances.length > 3) {
+    } else if (line.fragrances.length > 3) {
       be.slots = "Maximum 3 fragrances allowed";
     } else {
       // Check for duplicates
-      const uniqueIds = new Set(box.fragrances.map((f) => f.id));
+      const uniqueIds = new Set(line.fragrances.map((f) => f.id));
       if (uniqueIds.size !== 3) {
         be.slots = "All fragrances must be unique";
       }
     }
 
     // Validate inscription
-    const insErr = rules.inscription(box.inscription);
+    const insErr = rules.inscription(line.inscription);
     if (insErr) {
       be.inscription = insErr;
     }
@@ -195,7 +201,7 @@ export function validateFragranceForm(form: {
     name: rules.fragName(form.name),
     description: rules.fragDesc(form.description),
     image_url: rules.imageUrl(form.image_url),
-    category: !form.category.trim() ? "Required" : null,
+    category: rules.category(form.category),
     recipe: !form.recipe.trim() ? "Required" : null,
   };
 }

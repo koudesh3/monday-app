@@ -5,13 +5,13 @@
 
 import React from 'react';
 import { Heading, Text } from '@vibe/typography';
-import { TextField, Flex, Box as VibeBox } from '@vibe/core';
+import { TextField, Flex, Box } from '@vibe/core';
 import { Button } from '@vibe/button';
 import { IconButton } from '@vibe/icon-button';
 import { Add } from '@vibe/icons';
 import { OrderLine, OrderLineRef } from './OrderLine';
 import type { Fragrance } from '../../api/fragrances';
-import type { Box } from '../../hooks/useBoxes';
+import type { OrderLine as OrderLineType } from '../../hooks/useOrderLines';
 
 export interface OrderFormProps {
     firstName: string;
@@ -24,7 +24,7 @@ export interface OrderFormProps {
     onEmailChange: (value: string) => void;
     onPhoneChange: (value: string) => void;
     onShippingAddressChange: (value: string) => void;
-    boxes: Box[];
+    boxes: OrderLineType[];
     availableFragrances: Fragrance[];
     onFragrancesChange: (boxIndex: number, fragrances: Fragrance[]) => void;
     onInscriptionChange: (boxIndex: number, inscription: string) => void;
@@ -88,7 +88,7 @@ export function OrderForm({
 
     return (
         <form onSubmit={handleSubmit} style={{ margin: 0, padding: 0 }}>
-            <VibeBox backgroundColor="primaryBackgroundColor" padding="large" margin="auto" rounded="medium" style={{ width: '90%', maxWidth: '1400px' }}>
+            <Box backgroundColor="primaryBackgroundColor" padding="large" margin="auto" rounded="medium" style={{ width: '90%', maxWidth: '1400px' }}>
                 <Flex direction="column" gap="large" style={{ width: '100%' }}>
                     <Flex align="center" justify="space-between" style={{ width: '100%' }}>
                         <Heading type="h1" style={{ textAlign: 'left' }}>Submit a New Order</Heading>
@@ -209,7 +209,7 @@ export function OrderForm({
                         </Button>
                     </Flex>
                 </Flex>
-            </VibeBox>
+            </Box>
         </form>
     );
 }

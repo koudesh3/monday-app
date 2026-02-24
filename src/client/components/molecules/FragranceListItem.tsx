@@ -6,11 +6,9 @@
 
 import React from 'react';
 import { Text } from '@vibe/typography';
-import { Label, Flex, Box } from '@vibe/core';
+import { Label, Flex } from '@vibe/core';
 import { IconButton } from '@vibe/icon-button';
 import { Edit, Delete } from '@vibe/icons';
-import { useHover } from '@vibe/core';
-import { CategoryDot } from '../atoms/CategoryDot';
 import type { Fragrance } from '../../api/fragrances';
 
 export interface FragranceListItemProps {
@@ -33,8 +31,6 @@ export function FragranceListItem({
     onEdit,
     onDelete,
 }: FragranceListItemProps) {
-    const [hoverRef, isHovered] = useHover<HTMLDivElement>();
-
     const handleClick = () => {
         if (mode === 'selectable' && onSelect) {
             onSelect(fragrance);
@@ -53,7 +49,6 @@ export function FragranceListItem({
 
     return (
         <div
-            ref={mode === 'selectable' ? hoverRef : undefined}
             role={mode === 'selectable' ? 'button' : undefined}
             tabIndex={mode === 'selectable' ? 0 : undefined}
             onClick={handleClick}
@@ -71,7 +66,6 @@ export function FragranceListItem({
             <Flex align="center" justify="space-between" gap="medium">
                 <Flex direction="column" gap="xs">
                     <Flex align="center" gap="small">
-                        <CategoryDot category={fragrance.category} />
                         <Text type="text2" weight="medium" ellipsis>
                             {fragrance.name}
                         </Text>

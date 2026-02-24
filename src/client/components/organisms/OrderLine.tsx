@@ -5,15 +5,15 @@
 
 import React, { useState, useImperativeHandle, forwardRef, useMemo } from 'react';
 import { Heading, Text } from '@vibe/typography';
-import { TextField, Flex, Box as VibeBox, Dropdown } from '@vibe/core';
+import { TextField, Flex, Box, Dropdown } from '@vibe/core';
 import { IconButton } from '@vibe/icon-button';
 import { Delete } from '@vibe/icons';
 import { rules } from '../../validation';
 import type { Fragrance } from '../../api/fragrances';
-import type { Box } from '../../hooks/useBoxes';
+import type { OrderLine as OrderLineType } from '../../hooks/useOrderLines';
 
 export interface OrderLineProps {
-  box: Box;
+  box: OrderLineType;
   boxNumber: number;
   availableFragrances: Fragrance[];
   onFragrancesChange: (fragrances: Fragrance[]) => void;
@@ -100,7 +100,7 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
     const isComplete = filledCount === 3;
 
     return (
-      <VibeBox border rounded="medium" backgroundColor="primaryBackgroundColor" padding="medium" style={{ width: '100%', position: 'relative' }}>
+      <Box border rounded="medium" backgroundColor="primaryBackgroundColor" padding="medium" style={{ width: '100%', position: 'relative' }}>
         {onRemove && (
           <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 10, color: 'var(--negative-color, #D83A52)' }}>
             <IconButton
@@ -112,7 +112,7 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
             />
           </div>
         )}
-        <VibeBox marginBottom="medium">
+        <Box marginBottom="medium">
           <Flex align="center" gap="medium">
             <div>
               <Heading type="h3">Box {boxNumber}</Heading>
@@ -121,7 +121,7 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
               {filledCount} / 3 fragrances
             </Text>
           </Flex>
-        </VibeBox>
+        </Box>
 
         <div style={{ width: '100%', marginBottom: '66px', position: 'relative', zIndex: 100 }}>
           <Dropdown
@@ -134,16 +134,15 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
             size="medium"
             menuPortalTarget={typeof document !== 'undefined' ? document.body : undefined}
             insideOverflowContainer
-            isOptionDisabled={() => selectedValues.length >= 3}
           />
         </div>
 
         {slotsError && (
-          <VibeBox marginBottom="small">
+          <Box marginBottom="small">
             <Text type="text3" color="negative">
               {slotsError}
             </Text>
-          </VibeBox>
+          </Box>
         )}
 
         <TextField
@@ -158,7 +157,7 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
               : undefined
           }
         />
-      </VibeBox>
+      </Box>
     );
   }
 );

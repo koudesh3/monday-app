@@ -4,11 +4,9 @@
  */
 
 import React, { useState } from 'react';
-import { TextField, Flex, Box } from '@vibe/core';
-import { Dropdown } from '@vibe/core/next';
+import { TextField, TextArea, Flex, Box } from '@vibe/core';
 import { Button } from '@vibe/button';
 import { Text } from '@vibe/typography';
-import { CATEGORIES } from '../../constants';
 import { rules, validateFragranceForm } from '../../validation';
 import type { FragranceForm as FragranceFormData } from '../../api/fragrances';
 
@@ -59,7 +57,7 @@ export function FragranceForm({
                 name: form.name.trim(),
                 description: form.description.trim(),
                 category: form.category,
-                image_url: form.image_url.trim(),
+                image_url: form.image_url.trim() || undefined,
                 recipe: form.recipe.trim(),
             });
         } catch (err) {
@@ -68,11 +66,6 @@ export function FragranceForm({
             setSaving(false);
         }
     };
-
-    const categoryOptions = CATEGORIES.map((cat) => ({
-        value: cat,
-        label: cat,
-    }));
 
     return (
         <form onSubmit={handleSubmit} className="fragrance-form">
@@ -98,21 +91,16 @@ export function FragranceForm({
                     validation={errors.description ? { status: 'error', text: errors.description } : undefined}
                 />
 
-                <Flex direction="column" gap="xs" align="stretch">
-                    <Dropdown
-                        placeholder="Select category"
-                        options={categoryOptions}
-                        value={form.category ? { value: form.category, label: form.category } : undefined}
-                        onChange={(option) => setField('category', option?.value ?? '')}
-                        onBlur={() => setErrors((prev) => ({ ...prev, category: !form.category.trim() ? 'Required' : null }))}
-                        required
-                    />
-                    {errors.category && (
-                        <Text type="text2" color="negative">
-                            {errors.category}
-                        </Text>
-                    )}
-                </Flex>
+                <TextField
+                    id="fragrance-category"
+                    title="Category"
+                    placeholder="e.g. Fresh, Woody, Floral"
+                    value={form.category}
+                    onChange={(value) => setField('category', value)}
+                    onBlur={() => setErrors((prev) => ({ ...prev, category: rules.category(form.category) }))}
+                    validation={errors.category ? { status: 'error', text: errors.category } : undefined}
+                    required
+                />
 
                 <TextField
                     id="fragrance-image-url"
@@ -122,18 +110,17 @@ export function FragranceForm({
                     onChange={(value) => setField('image_url', value)}
                     onBlur={() => setErrors((prev) => ({ ...prev, image_url: rules.imageUrl(form.image_url) }))}
                     validation={errors.image_url ? { status: 'error', text: errors.image_url } : undefined}
-                    required
                 />
 
-                <TextField
+                <TextArea
                     id="fragrance-recipe"
-                    title="Recipe"
+                    label="Recipe"
                     placeholder="Enter recipe or formula"
                     value={form.recipe}
-                    onChange={(value) => setField('recipe', value)}
+                    onChange={(e) => setField('recipe', e.target.value)}
                     onBlur={() => setErrors((prev) => ({ ...prev, recipe: !form.recipe.trim() ? 'Required' : null }))}
-                    validation={errors.recipe ? { status: 'error', text: errors.recipe } : undefined}
-                    required
+                    error={!!errors.recipe}
+                    helpText={errors.recipe || undefined}
                 />
 
                 <Flex gap="small" justify="end">

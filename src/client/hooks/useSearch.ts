@@ -1,5 +1,3 @@
-// TODO: One small thing: the keys array as a useMemo dependency will cause recomputation on every render if the caller passes a literal like ['name', 'category'] inline, since it's a new array reference each time. Probably not noticeable with a small list, but if it ever matters, the caller would need to stabilize it with useMemo or a constant.
-
 /**
  * useSearch
  * Generic filtered search over a list with debounce
@@ -10,7 +8,7 @@ import { useState, useEffect, useMemo } from 'react';
 const DEBOUNCE_MS = 300;
 
 /**
- * Pure filter function (exported for testing)
+ * Pure filter function
  * Filters items where any field in keys includes the query (case-insensitive)
  */
 export function filterItems<T>(
