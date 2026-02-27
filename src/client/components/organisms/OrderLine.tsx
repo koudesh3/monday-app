@@ -102,7 +102,7 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
     return (
       <Box border rounded="medium" backgroundColor="primaryBackgroundColor" padding="medium" style={{ width: '100%', position: 'relative' }}>
         {onRemove && (
-          <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 10, color: 'var(--negative-color, #D83A52)' }}>
+          <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 'var(--z-base)', color: 'var(--negative-color, #D83A52)' }}>
             <IconButton
               icon={Delete}
               size="small"
@@ -123,7 +123,7 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
           </Flex>
         </Box>
 
-        <div style={{ width: '100%', marginBottom: '66px', position: 'relative', zIndex: 100 }}>
+        <div style={{ width: '100%', marginBottom: '66px', position: 'relative', zIndex: 'var(--z-dropdown)' }}>
           <Dropdown
             placeholder="Select 3 fragrances"
             value={selectedValues}

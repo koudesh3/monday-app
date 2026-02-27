@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { Text } from '@vibe/typography';
-import { Label, Flex } from '@vibe/core';
+import { Label, Flex, Clickable } from '@vibe/core';
 import { IconButton } from '@vibe/icon-button';
 import { Edit, Delete } from '@vibe/icons';
 import type { Fragrance } from '../../api/fragrances';
@@ -32,71 +32,64 @@ export function FragranceListItem({
     onDelete,
 }: FragranceListItemProps) {
     const handleClick = () => {
-        if (mode === 'selectable' && onSelect) {
-            onSelect(fragrance);
-        }
+        onSelect?.(fragrance);
     };
 
-    const handleEdit = (e: React.MouseEvent) => {
-        e.stopPropagation();
+    const handleEdit = () => {
         onEdit?.(fragrance);
     };
 
-    const handleDelete = (e: React.MouseEvent) => {
-        e.stopPropagation();
+    const handleDelete = () => {
         onDelete?.(fragrance);
     };
 
-    return (
-        <div
-            role={mode === 'selectable' ? 'button' : undefined}
-            tabIndex={mode === 'selectable' ? 0 : undefined}
-            onClick={handleClick}
-            onKeyDown={
-                mode === 'selectable'
-                    ? (e: React.KeyboardEvent) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            handleClick();
-                        }
-                    }
-                    : undefined
-            }
-        >
-            <Flex align="center" justify="space-between" gap="medium">
-                <Flex direction="column" gap="xs">
-                    <Flex align="center" gap="small">
-                        <Text type="text2" weight="medium" ellipsis>
-                            {fragrance.name}
-                        </Text>
-                        <Label text={fragrance.category} />
-                    </Flex>
-                    {fragrance.description && (
-                        <Text type="text3" color="secondary" className="text-clamp-2">
-                            {fragrance.description}
-                        </Text>
-                    )}
+    const content = (
+        <Flex align="center" justify="space-between" gap="medium">
+            <Flex direction="column" gap="xs" align="start">
+                <Flex align="center" gap="small">
+                    <Text type="text2" weight="medium" ellipsis>
+                        {fragrance.name}
+                    </Text>
+                    <Label text={fragrance.category} />
                 </Flex>
-
-                {mode === 'editable' && (
-                    <Flex gap="xs">
-                        <IconButton
-                            icon={Edit}
-                            size="small"
-                            kind="tertiary"
-                            ariaLabel="Edit fragrance"
-                            onClick={handleEdit}
-                        />
-                        <IconButton
-                            icon={Delete}
-                            size="small"
-                            kind="tertiary"
-                            ariaLabel="Delete fragrance"
-                            onClick={handleDelete}
-                        />
-                    </Flex>
+                {fragrance.description && (
+                    <Text type="text3" color="secondary" maxLines={2}>
+                        {fragrance.description}
+                    </Text>
                 )}
             </Flex>
-        </div>
+
+            {mode === 'editable' && (
+                <Flex gap="xs">
+                    <IconButton
+                        icon={Edit}
+                        size="small"
+                        kind="tertiary"
+                        ariaLabel="Edit fragrance"
+                        onClick={handleEdit}
+                    />
+                    <IconButton
+                        icon={Delete}
+                        size="small"
+                        kind="tertiary"
+                        ariaLabel="Delete fragrance"
+                        onClick={handleDelete}
+                    />
+                </Flex>
+            )}
+        </Flex>
     );
+
+    if (mode === 'selectable') {
+        return (
+            <Clickable
+                onClick={handleClick}
+                ariaLabel={`Select ${fragrance.name}`}
+            >
+                {content}
+            </Clickable>
+        );
+    }
+
+    return <div>{content}</div>;
 }

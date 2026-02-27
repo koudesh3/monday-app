@@ -16,16 +16,6 @@ html {
     padding: 0;
 }
 
-/* Multi-line text truncation utility */
-.text-clamp-2 {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-}
-
 /* Full width search in modal */
 .full-width-search {
     width: 100%;
@@ -36,4 +26,9 @@ html {
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
+}
+
+/* Ensure toast appears above modals */
+.toast-above-modal {
+    z-index: var(--z-toast) !important;
 }

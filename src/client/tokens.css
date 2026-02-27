@@ -2,6 +2,17 @@
  * Design Tokens
  */
 
+/* Z-index layering system
+ * Note: Vibe Modal uses z-index: 10000 by default
+ */
+:root {
+  --z-base: 0;           /* Normal document flow */
+  --z-dropdown: 1000;    /* Dropdowns, select menus, popovers */
+  --z-modal: 10000;      /* Modal dialogs (Vibe default) */
+  --z-toast: 10100;      /* Toast notifications (above modals) */
+  --z-tooltip: 10200;    /* Tooltips (highest priority) */
+}
+
 /* Global focus style */
 :focus-visible {
   outline: 2px solid var(--primary-color);

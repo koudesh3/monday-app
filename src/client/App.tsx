@@ -295,6 +295,7 @@ export default function App() {
           type={toast.type}
           onClose={() => setToast({ ...toast, open: false })}
           autoHideDuration={3000}
+          className="toast-above-modal"
         >
           {toast.message}
         </Toast>
