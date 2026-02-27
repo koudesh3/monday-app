@@ -82,18 +82,18 @@ export const client = {
     get: <T>(endpoint: string) =>
         apiFetch<T>(endpoint, { method: 'GET' }),
 
-    post: <T, B = unknown>(endpoint: string, body: B) =>
+    post: <T>(endpoint: string, body: unknown) =>
         apiFetch<T>(endpoint, {
             method: 'POST',
             body: JSON.stringify(body),
         }),
 
-    put: <T, B = unknown>(endpoint: string, body: B) =>
+    put: <T>(endpoint: string, body: unknown) =>
         apiFetch<T>(endpoint, {
             method: 'PUT',
             body: JSON.stringify(body),
         }),
 
-    delete: <T>(endpoint: string) =>
-        apiFetch<T>(endpoint, { method: 'DELETE' }),
+    delete: (endpoint: string): Promise<void> =>
+        apiFetch<void>(endpoint, { method: 'DELETE' }),
 };
