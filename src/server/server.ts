@@ -39,9 +39,11 @@ app.get('*', (c) => {
     return c.html(indexHtml);
 });
 
-// Start HTTP server
-serve({ fetch: app.fetch, port }, () => {
-    logger.info(`Server running on port ${port}`);
-});
+// Start HTTP server (skip in test environment)
+if (!process.env.VITEST) {
+    serve({ fetch: app.fetch, port }, () => {
+        logger.info(`Server running on port ${port}`);
+    });
+}
 
 export { app };
