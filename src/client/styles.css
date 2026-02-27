@@ -32,3 +32,15 @@ html {
 .toast-above-modal {
     z-index: var(--z-toast) !important;
 }
+
+/* Order form container sizing */
+.order-form-container {
+    width: 90%;
+    max-width: 1400px;
+}
+
+/* Reset form default styles */
+.order-form {
+    margin: 0;
+    padding: 0;
+}

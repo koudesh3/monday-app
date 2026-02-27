@@ -69,11 +69,11 @@ export function OrderForm({
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ margin: 0, padding: 0 }}>
-            <Box backgroundColor="primaryBackgroundColor" padding="large" margin="auto" rounded="medium" style={{ width: '90%', maxWidth: '1400px' }}>
-                <Flex direction="column" gap="large" style={{ width: '100%' }}>
-                    <Flex align="center" justify="space-between" style={{ width: '100%' }}>
-                        <Heading type="h1" style={{ textAlign: 'left' }}>Submit a New Order</Heading>
+        <form onSubmit={handleSubmit} className="order-form">
+            <Box backgroundColor="primaryBackgroundColor" padding="large" margin="auto" rounded="medium" className="order-form-container">
+                <Flex direction="column" gap="large" align="stretch">
+                    <Flex align="center" justify="space-between">
+                        <Heading type="h1">Submit a New Order</Heading>
                         <Button
                             type="button"
                             leftIcon={Add}
@@ -85,8 +85,8 @@ export function OrderForm({
                         </Button>
                     </Flex>
 
-                    <Flex direction="column" gap="medium" style={{ width: '100%' }}>
-                        <Flex gap="medium" style={{ width: '100%' }}>
+                    <Flex direction="column" gap="medium" align="stretch">
+                        <Flex gap="medium">
                             <TextField
                                 id="order-first-name"
                                 title="First Name"
@@ -106,7 +106,7 @@ export function OrderForm({
                                 required
                             />
                         </Flex>
-                        <Flex gap="medium" style={{ width: '100%' }}>
+                        <Flex gap="medium">
                             <TextField
                                 id="order-email"
                                 title="Email"
@@ -137,9 +137,9 @@ export function OrderForm({
                         />
                     </Flex>
 
-                    <Flex direction="column" gap="medium" align="start" style={{ width: '100%' }}>
+                    <Flex direction="column" gap="medium" align="stretch">
                         <Flex align="center" gap="medium" justify="start">
-                            <Heading type="h2" style={{ textAlign: 'left' }}>Order Lines</Heading>
+                            <Heading type="h2">Order Lines</Heading>
                             <Text type="text3" color="secondary">
                                 {boxes.length} {boxes.length === 1 ? 'box' : 'boxes'}
                             </Text>
@@ -154,7 +154,7 @@ export function OrderForm({
                             </Text>
                         )}
 
-                        <Flex direction="column" gap="medium" style={{ width: '100%' }}>
+                        <Flex direction="column" gap="medium" align="stretch">
                             {boxes.map((box, index) => (
                                 <OrderLine
                                     key={box.id}
