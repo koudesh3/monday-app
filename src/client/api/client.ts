@@ -7,7 +7,7 @@ export class ApiError extends Error {
     constructor(
         message: string,
         public status: number,
-        public details?: any
+        public details?: Record<string, unknown>
     ) {
         super(message);
         this.name = 'ApiError';
@@ -27,13 +27,6 @@ let authToken: string | null = null;
  */
 export function setAuthToken(token: string | null) {
     authToken = token;
-}
-
-/**
- * Get the current auth token (useful for debugging/testing)
- */
-export function getAuthToken(): string | null {
-    return authToken;
 }
 
 /**

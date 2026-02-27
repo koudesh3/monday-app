@@ -4,7 +4,7 @@
     "module": "commonjs",
     "jsx": "react",
     "outDir": "dist/server",
-    "rootDir": "src/server",
+    "rootDir": "src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -12,5 +12,5 @@
     "resolveJsonModule": true,
     "declaration": true
   },
-  "include": ["src/server/**/*"]
+  "include": ["src/server/**/*", "src/shared/**/*"]
 }

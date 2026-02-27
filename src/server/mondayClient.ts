@@ -6,13 +6,15 @@
 import { GraphQLClient, gql } from 'graphql-request';
 import { Logger } from '@mondaycom/apps-sdk';
 import { mondayApiToken } from './config';
+import { getErrorInfo } from './utils/errors';
 
 const logger = new Logger('mondayClient');
 
+
+// note: Column IDs must match the monday.com board configuration. If columns are renamed in the board, update these constants.
+// TODO: To make this production-ready for the Monday marketplace, we should generate the board on install, and maintain a map of cols per tenant.
 /**
  * Board column IDs
- * note: Column IDs must match the monday.com board configuration. If columns are renamed in the board, update these constants.
- * TODO: To make this production-ready for the Monday marketplace, we should generate the board on install, and maintain a map of cols per tenant.
  */
 export const COLUMN_IDS = {
     EMAIL: 'email',
@@ -27,6 +29,17 @@ export const COLUMN_IDS = {
     PARENT_STATUS: 'status',
     ORDER_COMPLETE_DATE: 'date_13',
 } as const;
+
+/**
+ * Monday.com column value types
+ */
+type ColumnValue =
+    | string
+    | { email: string; text: string }
+    | { phone: string; countryShortName: string }
+    | { date: string }
+    | { labels: string[] }
+    | { label: string };
 
 /**
  * Creates a GraphQL client with Monday API token
@@ -55,7 +68,7 @@ export async function createItem(params: {
 }): Promise<string> {
     const client = getClient();
 
-    const columnValues: Record<string, any> = {};
+    const columnValues: Record<string, ColumnValue> = {};
     if (params.email) {
         columnValues[COLUMN_IDS.EMAIL] = { email: params.email, text: params.email };
     }
@@ -94,13 +107,14 @@ export async function createItem(params: {
     try {
         const data = await client.request<{ create_item: { id: string } }>(mutation, variables);
         return data.create_item.id;
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const errorInfo = getErrorInfo(err);
         logger.error(`[mondayClient] createItem failed: ${JSON.stringify({
             boardId: params.boardId,
             itemName: params.itemName,
-            error: err.message,
-            response: err.response,
-            stack: err.stack,
+            error: errorInfo.message,
+            response: errorInfo.response,
+            stack: errorInfo.stack,
         })}`);
         throw err;
     }
@@ -145,14 +159,15 @@ export async function createSubitem(params: {
     try {
         const data = await client.request<{ create_subitem: { id: string } }>(mutation, variables);
         return data.create_subitem.id;
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const errorInfo = getErrorInfo(err);
         logger.error(`[mondayClient] createSubitem failed: ${JSON.stringify({
             parentItemId: params.parentItemId,
             orderLineNumber: params.orderLineNumber,
             itemName,
-            error: err.message,
-            response: err.response,
-            stack: err.stack,
+            error: errorInfo.message,
+            response: errorInfo.response,
+            stack: errorInfo.stack,
         })}`);
         throw err;
     }
@@ -282,15 +297,16 @@ export async function updateItemDate(params: {
 
     try {
         await client.request(mutation, variables);
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const errorInfo = getErrorInfo(err);
         logger.error(`[mondayClient] updateItemDate failed: ${JSON.stringify({
             boardId: params.boardId,
             itemId: params.itemId,
             dateColumnId: params.dateColumnId,
             date: params.date,
-            error: err.message,
-            response: err.response,
-            stack: err.stack,
+            error: errorInfo.message,
+            response: errorInfo.response,
+            stack: errorInfo.stack,
         })}`);
         throw err;
     }

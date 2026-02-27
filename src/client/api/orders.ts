@@ -4,30 +4,20 @@
  */
 
 import { client } from './client';
+import type { Box, CreateOrder } from '../../shared/schemas';
 
 // Check if mock mode is enabled
 const isMockMode = process.env.MOCK_MODE === 'true';
 
 /**
- * Box data in order payload
- */
-export interface OrderBox {
-    inscription: string;
-    fragrance_ids: [string, string, string]; // Exactly 3, all unique
-}
-
-/**
  * Order submission payload (matches backend CreateOrderSchema)
  */
-export interface OrderPayload {
-    boardId: number;
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone: string;
-    shipping_address: string;
-    boxes: OrderBox[];
-}
+export type OrderPayload = CreateOrder;
+
+/**
+ * Box data in order payload (re-export for convenience)
+ */
+export type OrderBox = Box;
 
 /**
  * Order submission response

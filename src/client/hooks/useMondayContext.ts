@@ -4,9 +4,9 @@
  */
 
 import { useState, useEffect } from 'react';
-import mondaySdk from 'monday-sdk-js';
 import { setAuthToken } from '../api/client';
 import { mockBoardId, mockSessionToken } from '../mocks/data';
+import mondaySdk from 'monday-sdk-js';
 
 const monday = mondaySdk();
 
@@ -57,13 +57,20 @@ export function useMondayContext(): MondayContext {
 
                 // Get board context
                 const contextResult = await monday.get('context');
-                const context = contextResult.data as { boardId?: number };
+                const context = contextResult.data;
 
-                if (!context?.boardId) {
+                // Runtime validation instead of type assertion
+                if (!context || typeof context !== 'object') {
                     throw new Error('Board context not available');
                 }
 
-                const parsedBoardId = Number(context.boardId);
+                if (!('boardId' in context)) {
+                    throw new Error('Board context missing boardId');
+                }
+
+                const boardIdValue = (context as Record<string, unknown>).boardId;
+                const parsedBoardId = Number(boardIdValue);
+
                 if (!Number.isInteger(parsedBoardId) || parsedBoardId <= 0) {
                     throw new Error('Invalid boardId in context');
                 }

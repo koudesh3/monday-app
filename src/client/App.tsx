@@ -16,6 +16,7 @@ import { OrderForm, CustomerInfo } from './components/organisms/OrderForm';
 import { OrderConfirmation } from './components/organisms/OrderConfirmation';
 import { FragranceEditor } from './components/organisms/FragranceEditor';
 import type { ValidationErrors } from './validation';
+import type { FragranceForm } from './api/fragrances';
 
 export default function App() {
   // Monday SDK initialization
@@ -47,7 +48,7 @@ export default function App() {
   }>({ message: '', type: 'positive', open: false });
 
   // Handle customer info changes
-  const handleCustomerInfoChange = useCallback((field: keyof CustomerInfo, value: string) => {
+  const handleCustomerInfoChange = useCallback((field: keyof CustomerInfo, value: string): void => {
     setCustomerInfo((prev) => ({ ...prev, [field]: value }));
   }, []);
 
@@ -106,7 +107,7 @@ export default function App() {
 
   // Handle fragrance CRUD with error handling
   const handleAddFragrance = useCallback(
-    async (form: any) => {
+    async (form: FragranceForm): Promise<void> => {
       try {
         await add(form);
         setToast({ message: 'Fragrance added successfully', type: 'positive', open: true });
@@ -120,7 +121,7 @@ export default function App() {
   );
 
   const handleUpdateFragrance = useCallback(
-    async (id: string, form: any) => {
+    async (id: string, form: FragranceForm): Promise<void> => {
       try {
         await update(id, form);
         setToast({ message: 'Fragrance updated successfully', type: 'positive', open: true });
@@ -149,7 +150,7 @@ export default function App() {
   );
 
   // Handle new order
-  const handleNewOrder = useCallback(() => {
+  const handleNewOrder = useCallback((): void => {
     reset();
     setCustomerInfo({
       firstName: '',

@@ -8,13 +8,7 @@
  * All validators return null (valid) or string (error message).
  */
 
-export interface Fragrance {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  imageUrl?: string;
-}
+import type { Fragrance } from '../shared/schemas';
 
 export interface OrderLine {
   id: string;

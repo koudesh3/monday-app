@@ -1,12 +1,24 @@
 /**
- * Validation schemas
- * Zod schemas for request/response validation and type inference
+ * Server-specific validation schemas
+ * Domain schemas are in /src/shared/schemas.ts
  */
 
 import { z } from 'zod';
 
+// Re-export shared domain schemas for convenience
+export {
+    FragranceSchema,
+    CreateFragranceSchema,
+    BoxSchema,
+    CreateOrderSchema,
+    type Fragrance,
+    type CreateFragrance,
+    type Box,
+    type CreateOrder,
+} from '../shared/schemas';
+
 /**
- * JWT session user payload
+ * JWT session user payload (server-specific)
  */
 export const SessionUserSchema = z.object({
     dat: z.object({
@@ -16,56 +28,7 @@ export const SessionUserSchema = z.object({
 });
 
 /**
- * Fragrance data structure
- */
-export const FragranceSchema = z.object({
-    id: z.string(),
-    name: z.string(),
-    description: z.string(),
-    category: z.string(),
-    image_url: z.string().url().optional(),
-    recipe: z.string().optional(),
-    created_at: z.string().datetime(),
-    updated_at: z.string().datetime(),
-});
-
-/**
- * Fragrance creation payload (omits id and timestamps)
- */
-export const CreateFragranceSchema = FragranceSchema.omit({
-    id: true,
-    created_at: true,
-    updated_at: true,
-});
-
-/**
- * Box data in order (inscription + 3 unique fragrances)
- */
-export const BoxSchema = z.object({
-    inscription: z.string(),
-    fragrance_ids: z
-        .array(z.string())
-        .length(3)
-        .refine((ids) => new Set(ids).size === 3, {
-            message: 'All 3 fragrance ids must be unique within the box',
-        }),
-});
-
-/**
- * Order creation payload
- */
-export const CreateOrderSchema = z.object({
-    boardId: z.number().int().positive(),
-    first_name: z.string(),
-    last_name: z.string(),
-    email: z.string().email(),
-    phone: z.string(),
-    shipping_address: z.string(),
-    boxes: z.array(BoxSchema).min(1).max(100), // note: This is my "reasonable" maximum on order line count
-});
-
-/**
- * Webhook event payload from Monday.com
+ * Webhook event payload from Monday.com (server-specific)
  * note: This is for "column_change" webhook events
  */
 export const WebhookPayloadSchema = z.object({
@@ -81,7 +44,7 @@ export const WebhookPayloadSchema = z.object({
                 text: z.string(),
             }),
         }),
-        previousValue: z.any().optional(),
+        previousValue: z.unknown().optional(),
         type: z.string(),
         parentItemId: z.string(),
         parentItemBoardId: z.string(),
@@ -89,8 +52,4 @@ export const WebhookPayloadSchema = z.object({
 });
 
 export type SessionUser = z.infer<typeof SessionUserSchema>;
-export type Fragrance = z.infer<typeof FragranceSchema>;
-export type CreateFragrance = z.infer<typeof CreateFragranceSchema>;
-export type Box = z.infer<typeof BoxSchema>;
-export type CreateOrder = z.infer<typeof CreateOrderSchema>;
 export type WebhookPayload = z.infer<typeof WebhookPayloadSchema>;

@@ -7,6 +7,7 @@ import { Hono } from 'hono';
 import { Logger } from '@mondaycom/apps-sdk';
 import { getSubitemsWithStatus, updateItemStatus, updateItemDate, getItemStatus, COLUMN_IDS } from '../mondayClient';
 import { WebhookPayloadSchema } from '../schemas';
+import { getErrorInfo } from '../utils/errors';
 
 const webhook = new Hono();
 const logger = new Logger('webhook');
@@ -102,25 +103,27 @@ webhook.post('/', async (c) => {
                     dateColumnId: COLUMN_IDS.ORDER_COMPLETE_DATE,
                     date: today,
                 });
-            } catch (dateErr: any) {
+            } catch (dateErr: unknown) {
+                const errorInfo = getErrorInfo(dateErr);
                 logger.error(`[webhook] failed to set order complete date: ${JSON.stringify({
                     parentItemId: event.parentItemId,
                     date: today,
-                    error: dateErr.message,
-                    response: dateErr.response,
-                    stack: dateErr.stack,
+                    error: errorInfo.message,
+                    response: errorInfo.response,
+                    stack: errorInfo.stack,
                 })}`);
                 // Don't throw - we still want to return success for the status update
             }
         }
 
         return c.json({ ok: true });
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const errorInfo = getErrorInfo(err);
         logger.error(`[webhook] Failed to process status rollup: ${JSON.stringify({
             event,
-            error: err.message,
-            response: err.response,
-            stack: err.stack,
+            error: errorInfo.message,
+            response: errorInfo.response,
+            stack: errorInfo.stack,
         })}`);
         return c.json({ error: 'Failed to process webhook' }, 500);
     }

@@ -21,13 +21,6 @@ html {
     width: 100%;
 }
 
-/* Constrain fragrance form to modal width */
-.fragrance-form-box {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-}
-
 /* Ensure toast appears above modals */
 .toast-above-modal {
     z-index: var(--z-toast) !important;

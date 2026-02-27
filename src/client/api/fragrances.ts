@@ -5,29 +5,19 @@
 
 import { client } from './client';
 import { mockFragrances } from '../mocks/data';
+import type { Fragrance as FragranceType, CreateFragrance } from '../../shared/schemas';
 
 // Check if mock mode is enabled
 const isMockMode = process.env.MOCK_MODE === 'true';
 
-/**
- * Fragrance type (matches backend schema)
- */
-export interface Fragrance {
-    id: string;
-    name: string;
-    description: string;
-    category: string;
-    image_url?: string;
-    recipe?: string;
-    created_at: string;
-    updated_at: string;
-}
+// Re-export for convenience
+export type Fragrance = FragranceType;
 
 /**
  * Form data for creating/updating fragrances
  * (omits id, timestamps)
  */
-export type FragranceForm = Omit<Fragrance, 'id' | 'created_at' | 'updated_at'>;
+export type FragranceForm = CreateFragrance;
 
 // Mock in-memory store for local development
 let mockStore = [...mockFragrances];

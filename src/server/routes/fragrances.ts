@@ -123,9 +123,8 @@ fragrances.put('/:id', async (c) => {
 
 /**
  * DELETE /api/fragrances/:id - Delete a fragrance
- * note: Deleting fragrances from the KV store doesn't remove them from the "fragrances" dropdown menu on the board.
- * Removing them would mean deprecated/inactive fragrances from previous orders lose state.
  */
+// note: Deleting fragrances from the KV store doesn't remove them from the "fragrances" dropdown menu on the board. Removing them would mean deprecated/inactive fragrances from previous orders lose state.
 fragrances.delete('/:id', async (c) => {
     const accountId = c.get('accountId');
     const id = c.req.param('id');

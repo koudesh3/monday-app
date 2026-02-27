@@ -12,6 +12,7 @@ import { CreateOrderSchema } from '../schemas';
 import { getFragrances } from '../storage';
 import { createItem, createSubitem } from '../mondayClient';
 import { Env } from '../types';
+import { getErrorInfo } from '../utils/errors';
 
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 8);
 const logger = new Logger('orders');
@@ -71,8 +72,9 @@ orders.post('/', async (c) => {
                 try {
                     const id = await createItem(createItemParams);
                     return id;
-                } catch (err: any) {
-                    const status = err.response?.status;
+                } catch (err: unknown) {
+                    const errorInfo = getErrorInfo(err);
+                    const status = errorInfo.status;
                     // Bail on client errors that won't fix themselves (400, 401, 403, 404, etc.)
                     // Retry on rate limits (429), timeouts (408), and server errors (5xx)
                     if (status && status >= 400 && status < 500 && status !== 408 && status !== 429) {
@@ -81,8 +83,8 @@ orders.post('/', async (c) => {
                             accountId,
                             orderNumber,
                             status,
-                            error: err.message,
-                            response: err.response,
+                            error: errorInfo.message,
+                            response: errorInfo.response,
                         })}`);
                         bail(err);
                         return ''; // unreachable, satisfies TS
@@ -92,14 +94,15 @@ orders.post('/', async (c) => {
             },
             { retries: 3 }
         );
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const errorInfo = getErrorInfo(err);
         logger.error(`[orders] item creation failed after retries: ${JSON.stringify({
             accountId,
             orderNumber,
             boardId: result.data.boardId,
-            error: err.message,
-            response: err.response,
-            stack: err.stack,
+            error: errorInfo.message,
+            response: errorInfo.response,
+            stack: errorInfo.stack,
         })}`);
         return c.json({ error: 'Failed to create order item after retries' }, 500);
     }
@@ -122,8 +125,9 @@ orders.post('/', async (c) => {
                                 fragranceNames: orderLine.fragrance_ids.map((id) => nameById.get(id)!), // validated above
                             });
                             return id;
-                        } catch (err: any) {
-                            const status = err.response?.status;
+                        } catch (err: unknown) {
+                            const errorInfo = getErrorInfo(err);
+                            const status = errorInfo.status;
                             // Bail on client errors that won't fix themselves (400, 401, 403, 404, etc.)
                             // Retry on rate limits (429), timeouts (408), and server errors (5xx)
                             if (status && status >= 400 && status < 500 && status !== 408 && status !== 429) {
@@ -133,8 +137,8 @@ orders.post('/', async (c) => {
                                     itemId,
                                     orderLineNumber,
                                     status,
-                                    error: err.message,
-                                    response: err.response,
+                                    error: errorInfo.message,
+                                    response: errorInfo.response,
                                 })}`);
                                 bail(err);
                                 return ''; // unreachable, satisfies TS
@@ -147,13 +151,14 @@ orders.post('/', async (c) => {
             )
         );
         return c.json({ orderId: orderNumber, itemId, subitemIds }, 201);
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const errorInfo = getErrorInfo(err);
         logger.error(`[orders] subitem creation failed after retries: ${JSON.stringify({
             itemId,
             accountId,
-            error: err.message,
-            response: err.response,
-            stack: err.stack,
+            error: errorInfo.message,
+            response: errorInfo.response,
+            stack: errorInfo.stack,
         })}`);
         return c.json(
             { error: 'Failed to create subitems after retries', itemId },

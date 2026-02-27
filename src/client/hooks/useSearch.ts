@@ -11,7 +11,7 @@ const DEBOUNCE_MS = 300;
  * Pure filter function
  * Filters items where any field in keys includes the query (case-insensitive)
  */
-export function filterItems<T>(
+function filterItems<T>(
     items: T[],
     keys: (keyof T)[],
     query: string
