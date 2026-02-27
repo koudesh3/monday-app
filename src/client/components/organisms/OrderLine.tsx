@@ -3,12 +3,11 @@
  * A single order line (gift box) with 1 multi-select dropdown for 3 fragrances and inscription
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Heading, Text } from '@vibe/typography';
 import { TextField, Flex, Box, Dropdown } from '@vibe/core';
 import { IconButton } from '@vibe/icon-button';
 import { Delete } from '@vibe/icons';
-import { rules } from '../../validation';
 import type { Fragrance } from '../../api/fragrances';
 import type { OrderLine as OrderLineType } from '../../hooks/useOrderLines';
 
@@ -38,14 +37,6 @@ export function OrderLine({
   slotsError,
   inscriptionError,
 }: OrderLineProps) {
-  // Local error state for blur-time validation feedback
-  const [localInscriptionError, setLocalInscriptionError] = useState<string | null>(null);
-
-  // Validate inscription on blur for user feedback
-  const handleInscriptionBlur = () => {
-    const error = rules.inscription(box.inscription);
-    setLocalInscriptionError(error);
-  };
 
   // Dropdown options
   const options = useMemo(
@@ -128,12 +119,7 @@ export function OrderLine({
         placeholder="Enter inscription for this box"
         value={box.inscription}
         onChange={onInscriptionChange}
-        onBlur={handleInscriptionBlur}
-        validation={
-          localInscriptionError || inscriptionError
-            ? { status: 'error', text: localInscriptionError || inscriptionError }
-            : undefined
-        }
+        validation={inscriptionError ? { status: 'error', text: inscriptionError } : undefined}
       />
     </Box>
   );
