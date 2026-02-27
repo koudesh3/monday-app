@@ -141,9 +141,7 @@ export function OrderForm({
 
                     <Flex direction="column" gap="medium" align="start" style={{ width: '100%' }}>
                         <Flex align="center" gap="medium" justify="start">
-                            <div>
-                                <Heading type="h2" style={{ textAlign: 'left' }}>Order Lines</Heading>
-                            </div>
+                            <Heading type="h2" style={{ textAlign: 'left' }}>Order Lines</Heading>
                             <Text type="text3" color="secondary">
                                 {boxes.length} {boxes.length === 1 ? 'box' : 'boxes'}
                             </Text>
