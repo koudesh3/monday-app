@@ -99,7 +99,7 @@ describe('Webhook API', () => {
                         value: { label: { index: 1, text: 'foo' } },
                         type: 'update_column_value',
                         parentItemId: '1771812716',
-                        parentItemBoardId: 1771812698,
+                        parentItemBoardId: '1771812698',
                     },
                 }),
             });
@@ -151,7 +151,7 @@ describe('Webhook API', () => {
                         value: { label: { index: 3, text: 'Shipped' } },
                         type: 'update_column_value',
                         parentItemId: '1771812716',
-                        parentItemBoardId: 1771812698,
+                        parentItemBoardId: '1771812698',
                     },
                 }),
             });
@@ -185,7 +185,7 @@ describe('Webhook API', () => {
                         value: { label: { index: 3, text: 'Shipped' } },
                         type: 'update_column_value',
                         parentItemId: '1771812716',
-                        parentItemBoardId: 1771812698,
+                        parentItemBoardId: '1771812698',
                     },
                 }),
             });
@@ -219,7 +219,7 @@ describe('Webhook API', () => {
                         value: { label: { index: 3, text: 'Shipped' } },
                         type: 'update_column_value',
                         parentItemId: '1771812716',
-                        parentItemBoardId: 1771812698,
+                        parentItemBoardId: '1771812698',
                     },
                 }),
             });
@@ -253,7 +253,7 @@ describe('Webhook API', () => {
                         value: { label: { index: 3, text: 'Shipped' } },
                         type: 'update_column_value',
                         parentItemId: '1771812716',
-                        parentItemBoardId: 1771812698,
+                        parentItemBoardId: '1771812698',
                     },
                 }),
             });
@@ -286,7 +286,7 @@ describe('Webhook API', () => {
                         value: { label: { index: 3, text: 'Shipped' } },
                         type: 'update_column_value',
                         parentItemId: '1771812716',
-                        parentItemBoardId: 1771812698,
+                        parentItemBoardId: '1771812698',
                     },
                 }),
             });
@@ -316,7 +316,7 @@ describe('Webhook API', () => {
                         value: { label: { index: 3, text: 'Shipped' } },
                         type: 'update_column_value',
                         parentItemId: '1771812716',
-                        parentItemBoardId: 1771812698,
+                        parentItemBoardId: '1771812698',
                     },
                 }),
             });
@@ -348,7 +348,7 @@ describe('Webhook API', () => {
                         value: { label: { index: 3, text: 'Shipped' } },
                         type: 'update_column_value',
                         parentItemId: '1771812716',
-                        parentItemBoardId: 1771812698,
+                        parentItemBoardId: '1771812698',
                     },
                 }),
             });
@@ -380,7 +380,7 @@ describe('Webhook API', () => {
                         value: { label: { index: 3, text: 'Shipped' } },
                         type: 'update_column_value',
                         parentItemId: '1771812716',
-                        parentItemBoardId: 1771812698,
+                        parentItemBoardId: '1771812698',
                     },
                 }),
             });
@@ -414,7 +414,7 @@ describe('Webhook API', () => {
                         value: { label: { index: 3, text: 'Shipped' } },
                         type: 'update_column_value',
                         parentItemId: '1771812716',
-                        parentItemBoardId: 1771812698,
+                        parentItemBoardId: '1771812698',
                     },
                 }),
             });
@@ -445,7 +445,7 @@ describe('Webhook API', () => {
                         value: { label: { index: 3, text: 'Shipped' } },
                         type: 'update_column_value',
                         parentItemId: '1771812716',
-                        parentItemBoardId: 1771812698,
+                        parentItemBoardId: '1771812698',
                     },
                 }),
             });
@@ -476,7 +476,7 @@ describe('Webhook API', () => {
                         value: { label: { index: 3, text: 'In Progress' } },
                         type: 'update_column_value',
                         parentItemId: '1771812716',
-                        parentItemBoardId: 1771812698,
+                        parentItemBoardId: '1771812698',
                     },
                 }),
             });
@@ -507,7 +507,7 @@ describe('Webhook API', () => {
                         value: { label: { index: 3, text: 'Shipped' } },
                         type: 'update_column_value',
                         parentItemId: '1771812716',
-                        parentItemBoardId: 1771812698,
+                        parentItemBoardId: '1771812698',
                     },
                 }),
             });
