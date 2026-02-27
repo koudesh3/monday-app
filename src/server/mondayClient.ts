@@ -60,7 +60,9 @@ export async function createItem(params: {
         columnValues[COLUMN_IDS.EMAIL] = { email: params.email, text: params.email };
     }
     if (params.phone) {
-        columnValues[COLUMN_IDS.PHONE] = { phone: params.phone, countryShortName: 'US' };
+        // Strip formatting (spaces, parentheses, dashes, dots) for Monday.com's libphonenumber validation
+        const cleanPhone = params.phone.replace(/[\s()\-\.]/g, '');
+        columnValues[COLUMN_IDS.PHONE] = { phone: cleanPhone, countryShortName: 'US' };
     }
     if (params.firstName) {
         columnValues[COLUMN_IDS.FIRST_NAME] = params.firstName;
