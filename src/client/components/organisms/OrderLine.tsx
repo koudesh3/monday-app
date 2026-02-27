@@ -123,7 +123,7 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
           </Flex>
         </Box>
 
-        <div style={{ width: '100%', marginBottom: '66px', position: 'relative', zIndex: 'var(--z-dropdown)' }}>
+        <Box marginBottom="medium">
           <Dropdown
             placeholder="Select 3 fragrances"
             value={selectedValues}
@@ -133,9 +133,8 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
             multiline
             size="medium"
             menuPortalTarget={typeof document !== 'undefined' ? document.body : undefined}
-            insideOverflowContainer
           />
-        </div>
+        </Box>
 
         {slotsError && (
           <Box marginBottom="small">
