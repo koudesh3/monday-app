@@ -4,6 +4,10 @@
  */
 
 import { client } from './client';
+import { mockFragrances } from '../mocks/data';
+
+// Check if mock mode is enabled
+const isMockMode = process.env.MOCK_MODE === 'true';
 
 /**
  * Fragrance type (matches backend schema)
@@ -14,7 +18,7 @@ export interface Fragrance {
     description: string;
     category: string;
     image_url?: string;
-    recipe: string;
+    recipe?: string;
     created_at: string;
     updated_at: string;
 }
@@ -25,10 +29,18 @@ export interface Fragrance {
  */
 export type FragranceForm = Omit<Fragrance, 'id' | 'created_at' | 'updated_at'>;
 
+// Mock in-memory store for local development
+let mockStore = [...mockFragrances];
+
 /**
  * Get all fragrances for the current account
  */
 export async function getAll(): Promise<Fragrance[]> {
+    if (isMockMode) {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 300));
+        return [...mockStore];
+    }
     return client.get<Fragrance[]>('/api/fragrances');
 }
 
@@ -36,6 +48,17 @@ export async function getAll(): Promise<Fragrance[]> {
  * Create a new fragrance
  */
 export async function create(form: FragranceForm): Promise<Fragrance> {
+    if (isMockMode) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const newFragrance: Fragrance = {
+            ...form,
+            id: String(Date.now()),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+        mockStore.push(newFragrance);
+        return newFragrance;
+    }
     return client.post<Fragrance>('/api/fragrances', form);
 }
 
@@ -43,6 +66,20 @@ export async function create(form: FragranceForm): Promise<Fragrance> {
  * Update an existing fragrance
  */
 export async function update(id: string, form: FragranceForm): Promise<Fragrance> {
+    if (isMockMode) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const index = mockStore.findIndex(f => f.id === id);
+        if (index === -1) {
+            throw new Error('Fragrance not found');
+        }
+        const updated: Fragrance = {
+            ...mockStore[index],
+            ...form,
+            updated_at: new Date().toISOString(),
+        };
+        mockStore[index] = updated;
+        return updated;
+    }
     return client.put<Fragrance>(`/api/fragrances/${id}`, form);
 }
 
@@ -50,5 +87,10 @@ export async function update(id: string, form: FragranceForm): Promise<Fragrance
  * Delete a fragrance
  */
 export async function remove(id: string): Promise<void> {
-    return client.delete<void>(`/api/fragrances/${id}`);
+    if (isMockMode) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        mockStore = mockStore.filter(f => f.id !== id);
+        return;
+    }
+    return client.delete(`/api/fragrances/${id}`);
 }

@@ -6,8 +6,12 @@
 import { useState, useEffect } from 'react';
 import mondaySdk from 'monday-sdk-js';
 import { setAuthToken } from '../api/client';
+import { mockBoardId, mockSessionToken } from '../mocks/data';
 
 const monday = mondaySdk();
+
+// Check if mock mode is enabled
+const isMockMode = process.env.MOCK_MODE === 'true';
 
 export interface MondayContext {
     boardId: number | null;
@@ -22,6 +26,8 @@ export interface MondayContext {
  * - Gets boardId from context
  * - Sets auth token for API client
  * - Returns ready state once both are available
+ *
+ * In mock mode (MOCK_MODE=true), returns mock data immediately
  */
 export function useMondayContext(): MondayContext {
     const [boardId, setBoardId] = useState<number | null>(null);
@@ -32,6 +38,18 @@ export function useMondayContext(): MondayContext {
     useEffect(() => {
         async function initialize() {
             try {
+                // Mock mode: skip Monday SDK and use mock data
+                if (isMockMode) {
+                    console.log('🎭 Mock mode enabled - using mock data for local development');
+                    setAuthToken(mockSessionToken);
+                    setToken(mockSessionToken);
+                    setBoardId(mockBoardId);
+                    setReady(true);
+                    setError(null);
+                    return;
+                }
+
+                // Production mode: use Monday SDK
                 // Get session token (JWT signed with CLIENT_SECRET) to authenticate requests to our backend
                 // note: This cannot not used to authenticate monday API calls
                 const tokenResult = await monday.get('sessionToken');

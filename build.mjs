@@ -1,5 +1,9 @@
 import * as esbuild from 'esbuild';
 import { writeFileSync, mkdirSync } from 'fs';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 mkdirSync('dist/client/assets', { recursive: true });
 
@@ -9,6 +13,9 @@ await esbuild.build({
     outfile: 'dist/client/assets/bundle.js',
     platform: 'browser',
     jsx: 'automatic',
+    define: {
+        'process.env.MOCK_MODE': JSON.stringify(process.env.MOCK_MODE || 'false'),
+    },
 });
 
 writeFileSync(
