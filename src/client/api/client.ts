@@ -30,6 +30,14 @@ export function setAuthToken(token: string | null) {
 }
 
 /**
+ * Get the current authentication token.
+ * Util used for testing token storage
+ */
+export function getAuthToken(): string | null {
+    return authToken;
+}
+
+/**
  * Base fetch wrapper with auth header and error handling
  */
 async function apiFetch<T>(
