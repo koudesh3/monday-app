@@ -23,7 +23,7 @@ export default function App() {
 
   // Domain state
   const { fragrances, loading: fragrancesLoading, add, update, remove } = useFragrances(ready);
-  const { boxes, addBox, removeBox, updateBox, setFragrances, clearFragranceFromAll, allComplete } = useOrderLines();
+  const { boxes, addBox, removeBox, setFragrances, setInscription, clearFragranceFromAll, allComplete } = useOrderLines();
   const { submitting, submitted, error: submitError, response, submit, reset } = useOrder();
 
   // Form state
@@ -254,9 +254,7 @@ export default function App() {
           boxes={boxes}
           availableFragrances={fragrances}
           onFragrancesChange={setFragrances}
-          onInscriptionChange={(boxIndex, inscription) => {
-            updateBox(boxIndex, { ...boxes[boxIndex], inscription });
-          }}
+          onInscriptionChange={setInscription}
           onAddBox={addBox}
           onRemoveBox={removeBox}
           onSubmit={handleSubmit}

@@ -16,9 +16,8 @@ export interface UseOrderLinesResult {
     boxes: OrderLine[];
     addBox: () => void;
     removeBox: (index: number) => void;
-    updateBox: (index: number, box: OrderLine) => void;
-    setSlot: (boxIndex: number, slotIndex: number, fragrance: Fragrance | null) => void;
     setFragrances: (boxIndex: number, fragrances: Fragrance[]) => void;
+    setInscription: (boxIndex: number, inscription: string) => void;
     clearFragranceFromAll: (fragranceId: string) => void;
     allComplete: boolean;
 }
@@ -53,32 +52,6 @@ export function useOrderLines(): UseOrderLinesResult {
         setBoxes((prev) => prev.filter((_, i) => i !== index));
     }, []);
 
-    // Replace a box at index
-    const updateBox = useCallback((index: number, box: OrderLine) => {
-        setBoxes((prev) => prev.map((b, i) => (i === index ? box : b)));
-    }, []);
-
-    // Set fragrances for a box (replaces all fragrances)
-    const setSlot = useCallback(
-        (boxIndex: number, slotIndex: number, fragrance: Fragrance | null) => {
-            // slotIndex is ignored now - kept for backward compatibility
-            // fragrance is expected to be null (not used in new implementation)
-            setBoxes((prev) => {
-                const updated = [...prev];
-                const box = updated[boxIndex];
-                if (!box) return prev;
-
-                updated[boxIndex] = {
-                    ...box,
-                    fragrances: box.fragrances,
-                };
-
-                return updated;
-            });
-        },
-        []
-    );
-
     // Set all fragrances for a box at once
     const setFragrances = useCallback(
         (boxIndex: number, fragrances: Fragrance[]) => {
@@ -90,6 +63,25 @@ export function useOrderLines(): UseOrderLinesResult {
                 updated[boxIndex] = {
                     ...box,
                     fragrances,
+                };
+
+                return updated;
+            });
+        },
+        []
+    );
+
+    // Set inscription for a box
+    const setInscription = useCallback(
+        (boxIndex: number, inscription: string) => {
+            setBoxes((prev) => {
+                const updated = [...prev];
+                const box = updated[boxIndex];
+                if (!box) return prev;
+
+                updated[boxIndex] = {
+                    ...box,
+                    inscription,
                 };
 
                 return updated;
@@ -117,9 +109,8 @@ export function useOrderLines(): UseOrderLinesResult {
         boxes,
         addBox,
         removeBox,
-        updateBox,
-        setSlot,
         setFragrances,
+        setInscription,
         clearFragranceFromAll,
         allComplete,
     };
