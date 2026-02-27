@@ -47,44 +47,50 @@ export function OrderLine({
     setLocalInscriptionError(error);
   };
 
-    // Dropdown options
-    const options = useMemo(
-      () =>
-        availableFragrances.map((f) => ({
-          value: f.id,
-          label: f.name,
-        })),
-      [availableFragrances]
-    );
+  // Dropdown options
+  const options = useMemo(
+    () =>
+      availableFragrances.map((f) => ({
+        value: f.id,
+        label: f.name,
+      })),
+    [availableFragrances]
+  );
 
-    // Selected values for dropdown
-    const selectedValues = useMemo(
-      () => box.fragrances.map((f) => ({ value: f.id, label: f.name })),
-      [box.fragrances]
-    );
+  // Selected values for dropdown
+  const selectedValues = useMemo(
+    () => box.fragrances.map((f) => ({ value: f.id, label: f.name })),
+    [box.fragrances]
+  );
 
-    // Handle fragrance selection change
-    const handleFragranceChange = (selected: Array<{ value: string; label: string }>) => {
-      // Limit to maximum 3 selections
-      const limitedSelection = selected.slice(0, 3);
+  // Handle fragrance selection change
+  const handleFragranceChange = (selected: Array<{ value: string; label: string }>) => {
+    // Limit to maximum 3 selections
+    const limitedSelection = selected.slice(0, 3);
 
-      // Ensure uniqueness with Set
-      const uniqueIds = Array.from(new Set(limitedSelection.map((s) => s.value)));
-      const selectedFragrances = uniqueIds
-        .map((id) => availableFragrances.find((f) => f.id === id))
-        .filter((f): f is Fragrance => f !== undefined);
+    // Ensure uniqueness with Set
+    const uniqueIds = Array.from(new Set(limitedSelection.map((s) => s.value)));
+    const selectedFragrances = uniqueIds
+      .map((id) => availableFragrances.find((f) => f.id === id))
+      .filter((f): f is Fragrance => f !== undefined);
 
-      onFragrancesChange(selectedFragrances);
-    };
+    onFragrancesChange(selectedFragrances);
+  };
 
-    // Count filled fragrances
-    const filledCount = box.fragrances.length;
-    const isComplete = filledCount === 3;
+  // Count filled fragrances
+  const filledCount = box.fragrances.length;
 
-    return (
-      <Box border rounded="medium" backgroundColor="primaryBackgroundColor" padding="medium" style={{ width: '100%', position: 'relative' }}>
-        {onRemove && (
-          <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 'var(--z-base)', color: 'var(--negative-color, #D83A52)' }}>
+  return (
+    <Box border rounded="medium" backgroundColor="primaryBackgroundColor" padding="medium">
+      <Box marginBottom="medium">
+        <Flex align="center" gap="medium" justify="space-between">
+          <Flex align="center" gap="medium">
+            <Heading type="h3">Box {boxNumber}</Heading>
+            <Text type="text3" color="secondary">
+              {filledCount} / 3 fragrances
+            </Text>
+          </Flex>
+          {onRemove && (
             <IconButton
               icon={Delete}
               size="small"
@@ -92,52 +98,43 @@ export function OrderLine({
               ariaLabel={`Remove box ${boxNumber}`}
               onClick={onRemove}
             />
-          </div>
-        )}
-        <Box marginBottom="medium">
-          <Flex align="center" gap="medium">
-            <div>
-              <Heading type="h3">Box {boxNumber}</Heading>
-            </div>
-            <Text type="text3" color="secondary">
-              {filledCount} / 3 fragrances
-            </Text>
-          </Flex>
-        </Box>
+          )}
+        </Flex>
+      </Box>
 
-        <Box marginBottom="medium">
-          <Dropdown
-            placeholder="Select 3 fragrances"
-            value={selectedValues}
-            options={options}
-            onChange={handleFragranceChange}
-            multi
-            multiline
-            size="medium"
-            menuPortalTarget={typeof document !== 'undefined' ? document.body : undefined}
-          />
-        </Box>
-
-        {slotsError && (
-          <Box marginBottom="small">
-            <Text type="text3" color="negative">
-              {slotsError}
-            </Text>
-          </Box>
-        )}
-
-        <TextField
-          title="Inscription (optional)"
-          placeholder="Enter inscription for this box"
-          value={box.inscription}
-          onChange={onInscriptionChange}
-          onBlur={handleInscriptionBlur}
-          validation={
-            localInscriptionError || inscriptionError
-              ? { status: 'error', text: localInscriptionError || inscriptionError }
-              : undefined
-          }
+      <Box marginBottom="medium">
+        <Dropdown
+          placeholder="Select 3 fragrances"
+          value={selectedValues}
+          options={options}
+          onChange={handleFragranceChange}
+          multi
+          multiline
+          size="medium"
+          menuPortalTarget={typeof document !== 'undefined' ? document.body : undefined}
         />
       </Box>
-    );
+
+      {slotsError && (
+        <Box marginBottom="small">
+          <Text type="text3" color="negative">
+            {slotsError}
+          </Text>
+        </Box>
+      )}
+
+      <TextField
+        title="Inscription (optional)"
+        placeholder="Enter inscription for this box"
+        value={box.inscription}
+        onChange={onInscriptionChange}
+        onBlur={handleInscriptionBlur}
+        validation={
+          localInscriptionError || inscriptionError
+            ? { status: 'error', text: localInscriptionError || inscriptionError }
+            : undefined
+        }
+      />
+    </Box>
+  );
 }
