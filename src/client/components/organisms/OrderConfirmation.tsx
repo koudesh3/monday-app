@@ -2,7 +2,6 @@
  * OrderConfirmation
  * Post-submission confirmation screen
  */
-
 import React from 'react';
 import { Heading, Text } from '@vibe/typography';
 import { Button } from '@vibe/button';
@@ -24,7 +23,7 @@ export function OrderConfirmation({ orderId, boxCount, itemId, onNewOrder }: Ord
         <Flex align="center" justify="center">
             <Box border rounded="medium" backgroundColor="primaryBackgroundColor" padding="xxl">
                 <Flex direction="column" align="center" gap="large">
-                    <Box>
+                    <Box aria-hidden="true">
                         ✅
                     </Box>
                     <Heading type="h1">Order Submitted!</Heading>
@@ -34,10 +33,10 @@ export function OrderConfirmation({ orderId, boxCount, itemId, onNewOrder }: Ord
                     <Box backgroundColor="secondaryBackgroundColor" rounded="small" padding="medium">
                         <Flex direction="column" gap="small">
                             <Text type="text2">
-                                <strong>Order ID:</strong> {orderId}
+                                <Text element="span" weight="bold">Order ID:</Text> {orderId}
                             </Text>
                             <Text type="text2">
-                                <strong>Gift Boxes:</strong> {boxCount}
+                                <Text element="span" weight="bold">Gift Boxes:</Text> {boxCount}
                             </Text>
                             <Text type="text3" color="secondary">
                                 Item ID: {itemId}
