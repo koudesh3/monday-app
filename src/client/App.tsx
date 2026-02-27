@@ -12,7 +12,7 @@ import { useFragrances } from './hooks/useFragrances';
 import { useOrderLines } from './hooks/useOrderLines';
 import { useOrder } from './hooks/useOrder';
 import { validateOrder } from './validation';
-import { OrderForm } from './components/organisms/OrderForm';
+import { OrderForm, CustomerInfo } from './components/organisms/OrderForm';
 import { OrderConfirmation } from './components/organisms/OrderConfirmation';
 import { FragranceEditor } from './components/organisms/FragranceEditor';
 import type { OrderLineRef } from './components/organisms/OrderLine';
@@ -28,11 +28,13 @@ export default function App() {
   const { submitting, submitted, error: submitError, response, submit, reset } = useOrder();
 
   // Form state
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [shippingAddress, setShippingAddress] = useState('');
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    shippingAddress: '',
+  });
   const [showAdmin, setShowAdmin] = useState(false);
 
   // Validation state
@@ -48,13 +50,18 @@ export default function App() {
     open: boolean;
   }>({ message: '', type: 'positive', open: false });
 
+  // Handle customer info changes
+  const handleCustomerInfoChange = useCallback((field: keyof CustomerInfo, value: string) => {
+    setCustomerInfo((prev) => ({ ...prev, [field]: value }));
+  }, []);
+
   // Derived: can submit if basic presence checks pass
   const canSubmit =
-    !!firstName.trim() &&
-    !!lastName.trim() &&
-    !!email.trim() &&
-    !!phone.trim() &&
-    !!shippingAddress.trim() &&
+    !!customerInfo.firstName.trim() &&
+    !!customerInfo.lastName.trim() &&
+    !!customerInfo.email.trim() &&
+    !!customerInfo.phone.trim() &&
+    !!customerInfo.shippingAddress.trim() &&
     boxes.length > 0 &&
     allComplete &&
     !submitting &&
@@ -72,11 +79,11 @@ export default function App() {
 
     // Validate
     const errors = validateOrder({
-      firstName,
-      lastName,
-      email,
-      phone,
-      shippingAddress,
+      firstName: customerInfo.firstName,
+      lastName: customerInfo.lastName,
+      email: customerInfo.email,
+      phone: customerInfo.phone,
+      shippingAddress: customerInfo.shippingAddress,
       boxes: currentBoxes
     });
     if (errors) {
@@ -95,17 +102,17 @@ export default function App() {
     // Build payload
     submit({
       boardId,
-      first_name: firstName.trim(),
-      last_name: lastName.trim(),
-      email: email.trim(),
-      phone: phone.trim(),
-      shipping_address: shippingAddress.trim(),
+      first_name: customerInfo.firstName.trim(),
+      last_name: customerInfo.lastName.trim(),
+      email: customerInfo.email.trim(),
+      phone: customerInfo.phone.trim(),
+      shipping_address: customerInfo.shippingAddress.trim(),
       boxes: currentBoxes.map((box) => ({
         inscription: box.inscription,
         fragrance_ids: box.fragrances.map((f) => f.id) as [string, string, string],
       })),
     });
-  }, [boardId, boxes, firstName, lastName, email, phone, shippingAddress, submit]);
+  }, [boardId, boxes, customerInfo, submit]);
 
   // Handle fragrance CRUD with error handling
   const handleAddFragrance = useCallback(
@@ -154,11 +161,13 @@ export default function App() {
   // Handle new order
   const handleNewOrder = useCallback(() => {
     reset();
-    setFirstName('');
-    setLastName('');
-    setEmail('');
-    setPhone('');
-    setShippingAddress('');
+    setCustomerInfo({
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      shippingAddress: '',
+    });
     setValidationErrors(null);
     // useOrderLines will maintain its state, but we could reset it if needed
   }, [reset]);
@@ -243,16 +252,15 @@ export default function App() {
           onOpenAdmin={() => {
             setShowAdmin(true);
           }}
-          firstName={firstName}
-          lastName={lastName}
-          email={email}
-          phone={phone}
-          shippingAddress={shippingAddress}
-          onFirstNameChange={setFirstName}
-          onLastNameChange={setLastName}
-          onEmailChange={setEmail}
-          onPhoneChange={setPhone}
-          onShippingAddressChange={setShippingAddress}
+          customerInfo={customerInfo}
+          onCustomerInfoChange={handleCustomerInfoChange}
+          customerErrors={validationErrors ? {
+            firstName: validationErrors.firstName,
+            lastName: validationErrors.lastName,
+            email: validationErrors.email,
+            phone: validationErrors.phone,
+            shippingAddress: validationErrors.shippingAddress,
+          } : undefined}
           boxes={boxes}
           availableFragrances={fragrances}
           onFragrancesChange={setFragrances}
@@ -267,11 +275,6 @@ export default function App() {
           canSubmit={canSubmit}
           submitting={submitting}
           submitError={submitError}
-          firstNameError={validationErrors?.firstName}
-          lastNameError={validationErrors?.lastName}
-          emailError={validationErrors?.email}
-          phoneError={validationErrors?.phone}
-          shippingAddressError={validationErrors?.shippingAddress}
           boxesError={validationErrors?.boxes}
           boxErrors={validationErrors?.boxErrors}
           inscriptionRefs={inscriptionRefs}

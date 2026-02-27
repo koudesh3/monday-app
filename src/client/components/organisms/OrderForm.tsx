@@ -13,17 +13,18 @@ import { OrderLine, OrderLineRef } from './OrderLine';
 import type { Fragrance } from '../../api/fragrances';
 import type { OrderLine as OrderLineType } from '../../hooks/useOrderLines';
 
-export interface OrderFormProps {
+export interface CustomerInfo {
     firstName: string;
     lastName: string;
     email: string;
     phone: string;
     shippingAddress: string;
-    onFirstNameChange: (value: string) => void;
-    onLastNameChange: (value: string) => void;
-    onEmailChange: (value: string) => void;
-    onPhoneChange: (value: string) => void;
-    onShippingAddressChange: (value: string) => void;
+}
+
+export interface OrderFormProps {
+    customerInfo: CustomerInfo;
+    onCustomerInfoChange: (field: keyof CustomerInfo, value: string) => void;
+    customerErrors?: Partial<Record<keyof CustomerInfo, string>>;
     boxes: OrderLineType[];
     availableFragrances: Fragrance[];
     onFragrancesChange: (boxIndex: number, fragrances: Fragrance[]) => void;
@@ -35,11 +36,6 @@ export interface OrderFormProps {
     canSubmit: boolean;
     submitting: boolean;
     submitError: string | null;
-    firstNameError?: string | null;
-    lastNameError?: string | null;
-    emailError?: string | null;
-    phoneError?: string | null;
-    shippingAddressError?: string | null;
     boxesError?: string | null;
     boxErrors?: Array<{ slots?: string; inscription?: string } | null>;
     inscriptionRefs: React.MutableRefObject<(OrderLineRef | null)[]>;
@@ -51,16 +47,9 @@ export interface OrderFormProps {
  * Submit button is type="submit", all others are type="button".
  */
 export function OrderForm({
-    firstName,
-    lastName,
-    email,
-    phone,
-    shippingAddress,
-    onFirstNameChange,
-    onLastNameChange,
-    onEmailChange,
-    onPhoneChange,
-    onShippingAddressChange,
+    customerInfo,
+    onCustomerInfoChange,
+    customerErrors,
     boxes,
     availableFragrances,
     onFragrancesChange,
@@ -72,11 +61,6 @@ export function OrderForm({
     canSubmit,
     submitting,
     submitError,
-    firstNameError,
-    lastNameError,
-    emailError,
-    phoneError,
-    shippingAddressError,
     boxesError,
     boxErrors,
     inscriptionRefs,
@@ -109,18 +93,18 @@ export function OrderForm({
                                 id="order-first-name"
                                 title="First Name"
                                 placeholder="Enter first name"
-                                value={firstName}
-                                onChange={onFirstNameChange}
-                                validation={firstNameError ? { status: 'error', text: firstNameError } : undefined}
+                                value={customerInfo.firstName}
+                                onChange={(value) => onCustomerInfoChange('firstName', value)}
+                                validation={customerErrors?.firstName ? { status: 'error', text: customerErrors.firstName } : undefined}
                                 required
                             />
                             <TextField
                                 id="order-last-name"
                                 title="Last Name"
                                 placeholder="Enter last name"
-                                value={lastName}
-                                onChange={onLastNameChange}
-                                validation={lastNameError ? { status: 'error', text: lastNameError } : undefined}
+                                value={customerInfo.lastName}
+                                onChange={(value) => onCustomerInfoChange('lastName', value)}
+                                validation={customerErrors?.lastName ? { status: 'error', text: customerErrors.lastName } : undefined}
                                 required
                             />
                         </Flex>
@@ -129,18 +113,18 @@ export function OrderForm({
                                 id="order-email"
                                 title="Email"
                                 placeholder="example@email.com"
-                                value={email}
-                                onChange={onEmailChange}
-                                validation={emailError ? { status: 'error', text: emailError } : undefined}
+                                value={customerInfo.email}
+                                onChange={(value) => onCustomerInfoChange('email', value)}
+                                validation={customerErrors?.email ? { status: 'error', text: customerErrors.email } : undefined}
                                 required
                             />
                             <TextField
                                 id="order-phone"
                                 title="Phone"
                                 placeholder="(555) 123-4567"
-                                value={phone}
-                                onChange={onPhoneChange}
-                                validation={phoneError ? { status: 'error', text: phoneError } : undefined}
+                                value={customerInfo.phone}
+                                onChange={(value) => onCustomerInfoChange('phone', value)}
+                                validation={customerErrors?.phone ? { status: 'error', text: customerErrors.phone } : undefined}
                                 required
                             />
                         </Flex>
@@ -148,9 +132,9 @@ export function OrderForm({
                             id="order-shipping-address"
                             title="Shipping Address"
                             placeholder="Enter full shipping address"
-                            value={shippingAddress}
-                            onChange={onShippingAddressChange}
-                            validation={shippingAddressError ? { status: 'error', text: shippingAddressError } : undefined}
+                            value={customerInfo.shippingAddress}
+                            onChange={(value) => onCustomerInfoChange('shippingAddress', value)}
+                            validation={customerErrors?.shippingAddress ? { status: 'error', text: customerErrors.shippingAddress } : undefined}
                             required
                         />
                     </Flex>
