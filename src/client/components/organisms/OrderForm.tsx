@@ -159,7 +159,7 @@ export function OrderForm({
                         <Flex direction="column" gap="medium" style={{ width: '100%' }}>
                             {boxes.map((box, index) => (
                                 <OrderLine
-                                    key={index}
+                                    key={box.id}
                                     ref={(el) => (inscriptionRefs.current[index] = el)}
                                     box={box}
                                     boxNumber={index + 1}

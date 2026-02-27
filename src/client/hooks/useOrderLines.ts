@@ -7,6 +7,7 @@ import { useState, useCallback, useMemo } from 'react';
 import type { Fragrance } from '../api/fragrances';
 
 export interface OrderLine {
+    id: string;
     fragrances: Fragrance[];
     inscription: string;
 }
@@ -27,6 +28,7 @@ export interface UseOrderLinesResult {
  */
 function createEmptyBox(): OrderLine {
     return {
+        id: `box-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         fragrances: [],
         inscription: '',
     };

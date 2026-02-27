@@ -17,6 +17,7 @@ export interface Fragrance {
 }
 
 export interface OrderLine {
+  id: string;
   fragrances: Fragrance[];
   inscription: string;
 }
