@@ -220,18 +220,18 @@ export function FragranceEditor({
                                 </Text>
                             )}
                         </ModalContent>
-                        <ModalFooter
-                            primaryButton={{
-                                text: 'Delete',
-                                onClick: handleDeleteConfirm,
-                                loading: deleteState.deleting,
-                            }}
-                            secondaryButton={{
-                                text: 'Cancel',
-                                onClick: () => setDeleteState({ open: false }),
-                            }}
-                        />
                     </ModalBasicLayout>
+                    <ModalFooter
+                        primaryButton={{
+                            text: 'Delete',
+                            onClick: handleDeleteConfirm,
+                            loading: deleteState.deleting,
+                        }}
+                        secondaryButton={{
+                            text: 'Cancel',
+                            onClick: () => setDeleteState({ open: false }),
+                        }}
+                    />
                 </Modal>
             )}
         </>
