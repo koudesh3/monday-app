@@ -3,7 +3,7 @@
  * Generic filtered search over a list with debounce
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
 const DEBOUNCE_MS = 300;
 
@@ -60,10 +60,7 @@ export function useSearch<T>(
     }, [query]);
 
     // Filter items based on debounced query
-    const filtered = useMemo(
-        () => filterItems(items, keys, debouncedQuery),
-        [items, keys, debouncedQuery]
-    );
+    const filtered = filterItems(items, keys, debouncedQuery);
 
     return {
         query,
