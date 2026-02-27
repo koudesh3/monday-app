@@ -4,9 +4,8 @@
  */
 
 import React, { useState } from 'react';
-import { TextField, TextArea, Flex, Box } from '@vibe/core';
+import { TextField, TextArea, Flex } from '@vibe/core';
 import { Button } from '@vibe/button';
-import { Text } from '@vibe/typography';
 import { rules, validateFragranceForm } from '../../validation';
 import type { FragranceForm as FragranceFormData } from '../../api/fragrances';
 
@@ -51,17 +50,15 @@ export function FragranceForm({
             return;
         }
 
+        setSaving(true);
         try {
-            setSaving(true);
             await onSave({
                 name: form.name.trim(),
                 description: form.description.trim(),
                 category: form.category,
-                image_url: form.image_url.trim() || undefined,
-                recipe: form.recipe.trim(),
+                image_url: form.image_url?.trim() || undefined,
+                recipe: form.recipe?.trim() || undefined,
             });
-        } catch (err) {
-            console.error('Save failed:', err);
         } finally {
             setSaving(false);
         }
@@ -115,10 +112,9 @@ export function FragranceForm({
                 <TextArea
                     id="fragrance-recipe"
                     label="Recipe"
-                    placeholder="Enter recipe or formula"
+                    placeholder="Enter recipe or formula (optional)"
                     value={form.recipe}
                     onChange={(e) => setField('recipe', e.target.value)}
-                    onBlur={() => setErrors((prev) => ({ ...prev, recipe: !form.recipe.trim() ? 'Required' : null }))}
                     error={!!errors.recipe}
                     helpText={errors.recipe || undefined}
                 />

@@ -179,17 +179,19 @@ export function FragranceEditor({
                                         }
                                     />
                                 ) : (
-                                    filtered.map((fragrance, index) => (
-                                        <div key={fragrance.id}>
-                                            <FragranceListItem
-                                                fragrance={fragrance}
-                                                mode="editable"
-                                                onEdit={handleEdit}
-                                                onDelete={handleDeleteClick}
-                                            />
-                                            {index < filtered.length - 1 && <Divider />}
-                                        </div>
-                                    ))
+                                    <Flex direction="column" align="stretch">
+                                        {filtered.map((fragrance, index) => (
+                                            <React.Fragment key={fragrance.id}>
+                                                <FragranceListItem
+                                                    fragrance={fragrance}
+                                                    mode="editable"
+                                                    onEdit={handleEdit}
+                                                    onDelete={handleDeleteClick}
+                                                />
+                                                {index < filtered.length - 1 && <Divider />}
+                                            </React.Fragment>
+                                        ))}
+                                    </Flex>
                                 )}
                         </Flex>
                     </ModalContent>

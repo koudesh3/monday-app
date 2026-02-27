@@ -194,15 +194,15 @@ export function validateOrder(payload: OrderPayload): ValidationErrors | null {
 export function validateFragranceForm(form: {
   name: string;
   description: string;
-  image_url: string;
+  image_url?: string;
   category: string;
-  recipe: string;
+  recipe?: string;
 }): Record<string, string | null> {
   return {
     name: rules.fragName(form.name),
     description: rules.fragDesc(form.description),
     image_url: rules.imageUrl(form.image_url),
     category: rules.category(form.category),
-    recipe: !form.recipe.trim() ? "Required" : null,
+    recipe: null, // Optional field
   };
 }
