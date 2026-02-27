@@ -3,11 +3,11 @@
  * Modal for managing the fragrance catalog
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Text } from '@vibe/typography';
 import { Search, Flex } from '@vibe/core';
 import { Button } from '@vibe/button';
-import { Modal, ModalHeader, ModalContent, ModalBasicLayout } from '@vibe/core/next';
+import { Modal, ModalHeader, ModalContent, ModalFooter, ModalBasicLayout } from '@vibe/core/next';
 import { Divider, EmptyState } from '@vibe/core';
 import { FragranceListItem } from '../molecules/FragranceListItem';
 import { FragranceForm } from '../molecules/FragranceForm';
@@ -50,12 +50,20 @@ export function FragranceEditor({
     const [formState, setFormState] = useState<FormState>({ mode: 'hidden' });
     const [deleteState, setDeleteState] = useState<DeleteState>({ open: false });
     const [formError, setFormError] = useState<string | null>(null);
+    const formRef = useRef<HTMLDivElement>(null);
 
     const { query, setQuery, filtered } = useSearch(fragrances, [
         'name',
         'description',
         'category',
     ]);
+
+    // Scroll to top when form appears
+    useEffect(() => {
+        if (formState.mode !== 'hidden' && formRef.current) {
+            formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, [formState.mode]);
 
     const handleAdd = () => {
         setFormState({ mode: 'add' });
@@ -109,130 +117,123 @@ export function FragranceEditor({
     };
 
     return (
-        <Modal
-            id="admin-panel-modal"
-            show={open}
-            onClose={onClose}
-            closeButtonAriaLabel="Close admin panel"
-            size="large"
-        >
-            <ModalBasicLayout>
-                <ModalHeader
-                    title="Manage Fragrances"
-                    description={`${fragrances.length} ${fragrances.length === 1 ? 'fragrance' : 'fragrances'}`}
-                />
+        <>
+            <Modal
+                id="admin-panel-modal"
+                show={open}
+                onClose={onClose}
+                closeButtonAriaLabel="Close admin panel"
+                size="large"
+            >
+                <ModalBasicLayout>
+                    <ModalHeader
+                        title="Manage Fragrances"
+                        description={`${fragrances.length} ${fragrances.length === 1 ? 'fragrance' : 'fragrances'}`}
+                    />
 
-                <ModalContent>
-                    <Flex direction="column" gap="medium" align="stretch">
-                        <Flex gap="large" align="center">
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                                <Search
-                                    placeholder="Search fragrances"
-                                    value={query}
-                                    onChange={setQuery}
-                                    className="full-width-search"
-                                />
-                            </div>
-                            <Button
-                                kind="primary"
-                                size="small"
-                                onClick={handleAdd}
-                                disabled={formState.mode !== 'hidden'}
-                            >
-                                Add Fragrance
-                            </Button>
-                        </Flex>
-
-                        {formState.mode !== 'hidden' && (
-                            <Flex direction="column" gap="medium" align="stretch">
-                                {formError && (
-                                    <Text type="text2" color="negative">
-                                        {formError}
-                                    </Text>
-                                )}
-                                <FragranceForm
-                                    key={formState.mode === 'edit' ? formState.fragrance.id : 'new'}
-                                    mode={formState.mode}
-                                    initialValues={formState.mode === 'edit' ? formState.fragrance : undefined}
-                                    onSave={handleFormSave}
-                                    onCancel={handleFormCancel}
-                                />
-                                <Divider />
+                    <ModalContent>
+                        <Flex direction="column" gap="medium" align="stretch">
+                            <Flex gap="large" align="center" ref={formRef}>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <Search
+                                        placeholder="Search fragrances"
+                                        value={query}
+                                        onChange={setQuery}
+                                        className="full-width-search"
+                                    />
+                                </div>
+                                <Button
+                                    kind="primary"
+                                    size="small"
+                                    onClick={handleAdd}
+                                    disabled={formState.mode !== 'hidden'}
+                                >
+                                    Add Fragrance
+                                </Button>
                             </Flex>
-                        )}
 
-                        {filtered.length === 0 ? (
-                                <EmptyState
-                                    description={
-                                        query
-                                            ? 'No fragrances found matching your search'
-                                            : 'No fragrances available. Add one to get started.'
-                                    }
-                                />
-                            ) : (
-                                filtered.map((fragrance, index) => (
-                                    <div key={fragrance.id}>
-                                        <FragranceListItem
-                                            fragrance={fragrance}
-                                            mode="editable"
-                                            onEdit={handleEdit}
-                                            onDelete={handleDeleteClick}
-                                        />
-                                        {index < filtered.length - 1 && <Divider />}
-                                    </div>
-                                ))
+                            {formState.mode !== 'hidden' && (
+                                <Flex direction="column" gap="medium" align="stretch">
+                                    {formError && (
+                                        <Text type="text2" color="negative">
+                                            {formError}
+                                        </Text>
+                                    )}
+                                    <FragranceForm
+                                        key={formState.mode === 'edit' ? formState.fragrance.id : 'new'}
+                                        mode={formState.mode}
+                                        initialValues={formState.mode === 'edit' ? formState.fragrance : undefined}
+                                        onSave={handleFormSave}
+                                        onCancel={handleFormCancel}
+                                    />
+                                    <Divider />
+                                </Flex>
                             )}
-                    </Flex>
-                </ModalContent>
-            </ModalBasicLayout>
 
-            {/* Delete confirmation dialog */}
+                            {filtered.length === 0 ? (
+                                    <EmptyState
+                                        description={
+                                            query
+                                                ? 'No fragrances found matching your search'
+                                                : 'No fragrances available. Add one to get started.'
+                                        }
+                                    />
+                                ) : (
+                                    filtered.map((fragrance, index) => (
+                                        <div key={fragrance.id}>
+                                            <FragranceListItem
+                                                fragrance={fragrance}
+                                                mode="editable"
+                                                onEdit={handleEdit}
+                                                onDelete={handleDeleteClick}
+                                            />
+                                            {index < filtered.length - 1 && <Divider />}
+                                        </div>
+                                    ))
+                                )}
+                        </Flex>
+                    </ModalContent>
+                </ModalBasicLayout>
+            </Modal>
+
             {deleteState.open && (
                 <Modal
                     id="delete-confirm-modal"
                     show={deleteState.open}
-                    onClose={() => !deleteState.deleting && setDeleteState({ open: false })}
+                    onClose={() => setDeleteState({ open: false })}
                     closeButtonAriaLabel="Cancel delete"
                     size="small"
+                    alertModal
                 >
                     <ModalBasicLayout>
                         <ModalHeader title="Delete Fragrance?" />
                         <ModalContent>
-                            <Flex direction="column" gap="medium">
-                                <Text type="text2" color="secondary">
-                                    Are you sure you want to delete "{deleteState.fragrance.name}"? This action
-                                    cannot be undone. This fragrance will be removed from any boxes in the current
-                                    order.
+                            <Text type="text2" color="secondary" style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                Are you sure you want to delete "{deleteState.fragrance.name}"? This action
+                                cannot be undone. This fragrance will be removed from any boxes in the current
+                                order.
+                            </Text>
+
+                            {deleteState.error && (
+                                <Text type="text2" color="negative">
+                                    {deleteState.error}
                                 </Text>
-
-                                {deleteState.error && (
-                                    <Text type="text2" color="negative">
-                                        {deleteState.error}
-                                    </Text>
-                                )}
-
-                                <Flex gap="small" justify="end">
-                                    <Button
-                                        kind="tertiary"
-                                        onClick={() => setDeleteState({ open: false })}
-                                        disabled={deleteState.deleting}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        kind="primary"
-                                        onClick={handleDeleteConfirm}
-                                        disabled={deleteState.deleting}
-                                        loading={deleteState.deleting}
-                                    >
-                                        Delete
-                                    </Button>
-                                </Flex>
-                            </Flex>
+                            )}
                         </ModalContent>
+                        <ModalFooter
+                            primaryButton={{
+                                text: 'Delete',
+                                onClick: handleDeleteConfirm,
+                                loading: deleteState.deleting,
+                            }}
+                            secondaryButton={{
+                                text: 'Cancel',
+                                onClick: () => setDeleteState({ open: false }),
+                            }}
+                        />
                     </ModalBasicLayout>
                 </Modal>
             )}
-        </Modal>
+        </>
     );
 }
