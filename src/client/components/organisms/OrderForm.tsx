@@ -9,7 +9,7 @@ import { TextField, Flex, Box } from '@vibe/core';
 import { Button } from '@vibe/button';
 import { IconButton } from '@vibe/icon-button';
 import { Add } from '@vibe/icons';
-import { OrderLine, OrderLineRef } from './OrderLine';
+import { OrderLine } from './OrderLine';
 import type { Fragrance } from '../../api/fragrances';
 import type { OrderLine as OrderLineType } from '../../hooks/useOrderLines';
 
@@ -38,7 +38,6 @@ export interface OrderFormProps {
     submitError: string | null;
     boxesError?: string | null;
     boxErrors?: Array<{ slots?: string; inscription?: string } | null>;
-    inscriptionRefs: React.MutableRefObject<(OrderLineRef | null)[]>;
 }
 
 /**
@@ -63,7 +62,6 @@ export function OrderForm({
     submitError,
     boxesError,
     boxErrors,
-    inscriptionRefs,
 }: OrderFormProps) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -160,7 +158,6 @@ export function OrderForm({
                             {boxes.map((box, index) => (
                                 <OrderLine
                                     key={box.id}
-                                    ref={(el) => (inscriptionRefs.current[index] = el)}
                                     box={box}
                                     boxNumber={index + 1}
                                     availableFragrances={availableFragrances}

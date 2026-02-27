@@ -3,7 +3,7 @@
  * A single order line (gift box) with 1 multi-select dropdown for 3 fragrances and inscription
  */
 
-import React, { useState, useImperativeHandle, forwardRef, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Heading, Text } from '@vibe/typography';
 import { TextField, Flex, Box, Dropdown } from '@vibe/core';
 import { IconButton } from '@vibe/icon-button';
@@ -23,47 +23,29 @@ export interface OrderLineProps {
   inscriptionError?: string | null;
 }
 
-export interface OrderLineRef {
-  value: string;
-}
-
 /**
  * Order line component (gift box configuration).
  * - 1 multi-select dropdown for selecting exactly 3 unique fragrances
- * - Inscription field with blur-based sync to parent
- * - Exposes inscription via ref for submission-time reading
+ * - Fully controlled inscription field that syncs immediately to parent
  */
-export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
-  (
-    {
-      box,
-      boxNumber,
-      availableFragrances,
-      onFragrancesChange,
-      onInscriptionChange,
-      onRemove,
-      slotsError,
-      inscriptionError,
-    },
-    ref
-  ) => {
-    // Local inscription state for immediate updates
-    const [localInscription, setLocalInscription] = useState(box.inscription);
-    const [localInscriptionError, setLocalInscriptionError] = useState<string | null>(null);
+export function OrderLine({
+  box,
+  boxNumber,
+  availableFragrances,
+  onFragrancesChange,
+  onInscriptionChange,
+  onRemove,
+  slotsError,
+  inscriptionError,
+}: OrderLineProps) {
+  // Local error state for blur-time validation feedback
+  const [localInscriptionError, setLocalInscriptionError] = useState<string | null>(null);
 
-    // Expose current inscription value via ref
-    useImperativeHandle(ref, () => ({
-      get value() {
-        return localInscription;
-      },
-    }));
-
-    // Flush inscription to parent on blur
-    const handleInscriptionBlur = () => {
-      const error = rules.inscription(localInscription);
-      setLocalInscriptionError(error);
-      onInscriptionChange(localInscription);
-    };
+  // Validate inscription on blur for user feedback
+  const handleInscriptionBlur = () => {
+    const error = rules.inscription(box.inscription);
+    setLocalInscriptionError(error);
+  };
 
     // Dropdown options
     const options = useMemo(
@@ -147,8 +129,8 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
         <TextField
           title="Inscription (optional)"
           placeholder="Enter inscription for this box"
-          value={localInscription}
-          onChange={setLocalInscription}
+          value={box.inscription}
+          onChange={onInscriptionChange}
           onBlur={handleInscriptionBlur}
           validation={
             localInscriptionError || inscriptionError
@@ -158,7 +140,4 @@ export const OrderLine = forwardRef<OrderLineRef, OrderLineProps>(
         />
       </Box>
     );
-  }
-);
-
-OrderLine.displayName = 'OrderLine';
+}

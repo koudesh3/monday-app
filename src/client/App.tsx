@@ -3,7 +3,7 @@
  * Top-level orchestrator that wires all hooks and components together
  */
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Loader } from '@vibe/loader';
 import { Toast, Flex } from '@vibe/core';
 import { Heading, Text } from '@vibe/typography';
@@ -15,7 +15,6 @@ import { validateOrder } from './validation';
 import { OrderForm, CustomerInfo } from './components/organisms/OrderForm';
 import { OrderConfirmation } from './components/organisms/OrderConfirmation';
 import { FragranceEditor } from './components/organisms/FragranceEditor';
-import type { OrderLineRef } from './components/organisms/OrderLine';
 import type { ValidationErrors } from './validation';
 
 export default function App() {
@@ -24,7 +23,7 @@ export default function App() {
 
   // Domain state
   const { fragrances, loading: fragrancesLoading, add, update, remove } = useFragrances(ready);
-  const { boxes, addBox, removeBox, setFragrances, clearFragranceFromAll, allComplete } = useOrderLines();
+  const { boxes, addBox, removeBox, updateBox, setFragrances, clearFragranceFromAll, allComplete } = useOrderLines();
   const { submitting, submitted, error: submitError, response, submit, reset } = useOrder();
 
   // Form state
@@ -39,9 +38,6 @@ export default function App() {
 
   // Validation state
   const [validationErrors, setValidationErrors] = useState<ValidationErrors | null>(null);
-
-  // Inscription refs for submission-time reading
-  const inscriptionRefs = useRef<(OrderLineRef | null)[]>([]);
 
   // Toast state
   const [toast, setToast] = useState<{
@@ -71,12 +67,6 @@ export default function App() {
   const handleSubmit = useCallback(() => {
     if (!boardId) return;
 
-    // Read current inscriptions from refs (source of truth at submission time)
-    const currentBoxes = boxes.map((box, i) => ({
-      ...box,
-      inscription: inscriptionRefs.current[i]?.value ?? box.inscription,
-    }));
-
     // Validate
     const errors = validateOrder({
       firstName: customerInfo.firstName,
@@ -84,7 +74,7 @@ export default function App() {
       email: customerInfo.email,
       phone: customerInfo.phone,
       shippingAddress: customerInfo.shippingAddress,
-      boxes: currentBoxes
+      boxes: boxes
     });
     if (errors) {
       setValidationErrors(errors);
@@ -107,7 +97,7 @@ export default function App() {
       email: customerInfo.email.trim(),
       phone: customerInfo.phone.trim(),
       shipping_address: customerInfo.shippingAddress.trim(),
-      boxes: currentBoxes.map((box) => ({
+      boxes: boxes.map((box) => ({
         inscription: box.inscription,
         fragrance_ids: box.fragrances.map((f) => f.id) as [string, string, string],
       })),
@@ -265,9 +255,7 @@ export default function App() {
           availableFragrances={fragrances}
           onFragrancesChange={setFragrances}
           onInscriptionChange={(boxIndex, inscription) => {
-            const updatedBox = { ...boxes[boxIndex], inscription };
-            const updatedBoxes = [...boxes];
-            updatedBoxes[boxIndex] = updatedBox;
+            updateBox(boxIndex, { ...boxes[boxIndex], inscription });
           }}
           onAddBox={addBox}
           onRemoveBox={removeBox}
@@ -277,7 +265,6 @@ export default function App() {
           submitError={submitError}
           boxesError={validationErrors?.boxes}
           boxErrors={validationErrors?.boxErrors}
-          inscriptionRefs={inscriptionRefs}
         />
       )}
 
