@@ -24,7 +24,7 @@ export const FragranceSchema = z.object({
     description: z.string(),
     category: z.string(),
     image_url: z.string().url().optional(),
-    recipe: z.string(),
+    recipe: z.string().optional(),
     created_at: z.string().datetime(),
     updated_at: z.string().datetime(),
 });
