@@ -3,7 +3,7 @@
  * Defines context variables available in request handlers
  */
 
-import { SessionUser } from './schemas';
+import { SessionUser } from './schemas.js';
 
 /**
  * Request context variables

@@ -6,10 +6,10 @@
 import crypto from 'crypto';
 import { Hono } from 'hono';
 import { Mutex } from 'async-mutex';
-import { authMiddleware } from '../auth';
-import { CreateFragranceSchema, Fragrance } from '../schemas';
-import { getFragrances, saveFragrances } from '../storage';
-import { Env } from '../types';
+import { authMiddleware } from '../auth.js';
+import { CreateFragranceSchema, Fragrance } from '../schemas.js';
+import { getFragrances, saveFragrances } from '../storage.js';
+import { Env } from '../types.js';
 
 /**
  * Per-account mutexes for concurrent write safety

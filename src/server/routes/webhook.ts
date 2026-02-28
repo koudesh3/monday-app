@@ -5,9 +5,9 @@
 
 import { Hono } from 'hono';
 import { Logger } from '@mondaycom/apps-sdk';
-import { getSubitemsWithStatus, updateItemStatus, updateItemDate, getItemStatus, COLUMN_IDS } from '../mondayClient';
-import { WebhookPayloadSchema } from '../schemas';
-import { getErrorInfo } from '../utils/errors';
+import { getSubitemsWithStatus, updateItemStatus, updateItemDate, getItemStatus, COLUMN_IDS } from '../mondayClient.js';
+import { WebhookPayloadSchema } from '../schemas.js';
+import { getErrorInfo } from '../utils/errors.js';
 
 const webhook = new Hono();
 const logger = new Logger('webhook');

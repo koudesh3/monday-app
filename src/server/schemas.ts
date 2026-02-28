@@ -15,7 +15,7 @@ export {
     type CreateFragrance,
     type Box,
     type CreateOrder,
-} from '../shared/schemas';
+} from '../shared/schemas.js';
 
 /**
  * JWT session user payload (server-specific)

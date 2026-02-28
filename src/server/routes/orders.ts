@@ -7,12 +7,12 @@ import retry from 'async-retry';
 import { Hono } from 'hono';
 import { Logger } from '@mondaycom/apps-sdk';
 import { customAlphabet } from 'nanoid';
-import { authMiddleware } from '../auth';
-import { CreateOrderSchema } from '../schemas';
-import { getFragrances } from '../storage';
-import { createItem, createSubitem } from '../mondayClient';
-import { Env } from '../types';
-import { getErrorInfo } from '../utils/errors';
+import { authMiddleware } from '../auth.js';
+import { CreateOrderSchema } from '../schemas.js';
+import { getFragrances } from '../storage.js';
+import { createItem, createSubitem } from '../mondayClient.js';
+import { Env } from '../types.js';
+import { getErrorInfo } from '../utils/errors.js';
 
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 8);
 const logger = new Logger('orders');

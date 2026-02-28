@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
         "target": "ES2022",
-        "module": "commonjs",
-        "jsx": "react-jsx",
+        "module": "esnext",
+        "moduleResolution": "bundler",
         "outDir": "dist",
         "rootDir": "src",
         "strict": true,
@@ -12,8 +12,11 @@
         "resolveJsonModule": true
     },
     "include": [
-        "src/client/**/*",
-        "src/server/**/*",
-        "src/shared/**/*"
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "tests"
     ]
 }

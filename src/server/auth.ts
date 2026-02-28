@@ -5,9 +5,9 @@
 
 import jwt from 'jsonwebtoken';
 import { Context, Next } from 'hono';
-import { SessionUserSchema } from './schemas';
-import { Env } from './types';
-import { clientSecret } from './config';
+import { SessionUserSchema } from './schemas.js';
+import { Env } from './types.js';
+import { clientSecret } from './config.js';
 
 /**
  * Validates JWT bearer tokens and sets user context

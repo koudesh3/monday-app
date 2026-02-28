@@ -2,8 +2,9 @@
   "name": "candle-gift-box",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "tsc && node build.mjs",
+    "build": "tsc -p tsconfig.client.json && tsc -p tsconfig.server.json && node build.mjs",
     "start": "node dist/server/server.js",
     "dev": "npx tsx watch src/server/server.ts",
     "test": "vitest run"

@@ -4,7 +4,7 @@
  */
 
 import { SecureStorage } from '@mondaycom/apps-sdk';
-import { Fragrance } from './schemas';
+import { Fragrance } from './schemas.js';
 
 const storage = new SecureStorage();
 

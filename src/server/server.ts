@@ -9,11 +9,11 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { Logger } from '@mondaycom/apps-sdk';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { port } from './config';
-import { Env } from './types';
-import fragrances from './routes/fragrances';
-import orders from './routes/orders';
-import webhook from './routes/webhook';
+import { port } from './config.js';
+import { Env } from './types.js';
+import fragrances from './routes/fragrances.js';
+import orders from './routes/orders.js';
+import webhook from './routes/webhook.js';
 
 const logger = new Logger('candle-app');
 

@@ -5,8 +5,8 @@
 
 import { GraphQLClient, gql } from 'graphql-request';
 import { Logger } from '@mondaycom/apps-sdk';
-import { mondayApiToken } from './config';
-import { getErrorInfo } from './utils/errors';
+import { mondayApiToken } from './config.js';
+import { getErrorInfo } from './utils/errors.js';
 
 const logger = new Logger('mondayClient');
 
