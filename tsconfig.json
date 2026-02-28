@@ -1,16 +1,19 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "commonjs",
-    "jsx": "react",
-    "outDir": "dist/server",
-    "rootDir": "src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "declaration": true
-  },
-  "include": ["src/server/**/*", "src/shared/**/*"]
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "commonjs",
+        "jsx": "react",
+        "outDir": "dist",
+        "rootDir": "src",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "declaration": true
+    },
+    "include": [
+        "src/server/**/*",
+        "src/shared/**/*"
+    ]
 }
