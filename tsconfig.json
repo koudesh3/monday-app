@@ -2,17 +2,17 @@
     "compilerOptions": {
         "target": "ES2022",
         "module": "commonjs",
-        "jsx": "react",
+        "jsx": "react-jsx",
         "outDir": "dist",
         "rootDir": "src",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "resolveJsonModule": true,
-        "declaration": true
+        "resolveJsonModule": true
     },
     "include": [
+        "src/client/**/*",
         "src/server/**/*",
         "src/shared/**/*"
     ]

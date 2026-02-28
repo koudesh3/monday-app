@@ -3,7 +3,7 @@
  * Top-level orchestrator that wires all hooks and components together
  */
 
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Loader } from '@vibe/loader';
 import { Toast, Flex } from '@vibe/core';
 import { Heading, Text } from '@vibe/typography';

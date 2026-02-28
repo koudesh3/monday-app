@@ -2,7 +2,6 @@
  * OrderConfirmation
  * Post-submission confirmation screen
  */
-import React from 'react';
 import { Heading, Text } from '@vibe/typography';
 import { Button } from '@vibe/button';
 import { Flex, Box } from '@vibe/core';

@@ -4,7 +4,6 @@
  * Supports two modes: selectable (for picker) and editable (for admin panel)
  */
 
-import React from 'react';
 import { Text } from '@vibe/typography';
 import { Label, Flex, Clickable } from '@vibe/core';
 import { IconButton } from '@vibe/icon-button';

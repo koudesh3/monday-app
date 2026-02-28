@@ -3,7 +3,7 @@
  * A single order line (gift box) with 1 multi-select dropdown for 3 fragrances and inscription
  */
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Heading, Text } from '@vibe/typography';
 import { TextField, Flex, Box, Dropdown } from '@vibe/core';
 import { IconButton } from '@vibe/icon-button';

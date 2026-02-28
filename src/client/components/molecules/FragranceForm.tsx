@@ -3,7 +3,7 @@
  * Add/edit form for fragrances in the admin panel
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { TextField, TextArea, Flex } from '@vibe/core';
 import { Button } from '@vibe/button';
 import { rules, validateFragranceForm } from '../../validation';

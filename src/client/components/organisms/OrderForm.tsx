@@ -3,7 +3,6 @@
  * Main form layout for creating production orders
  */
 
-import React from 'react';
 import { Heading, Text } from '@vibe/typography';
 import { TextField, Flex, Box } from '@vibe/core';
 import { Button } from '@vibe/button';
